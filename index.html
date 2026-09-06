@@ -301,12 +301,12 @@ let joinRoom = null;
 async function ensureTrystero(){
   if(joinRoom) return true;
   try{
-    const mod = await import('https://cdn.jsdelivr.net/npm/trystero/torrent/+esm');
+    const mod = await import('https://cdn.jsdelivr.net/npm/trystero/+esm');
     joinRoom = mod.joinRoom;
     return true;
   }catch(e1){
     try{
-      const mod2 = await import('https://esm.run/trystero/torrent');
+      const mod2 = await import('https://esm.run/trystero');
       joinRoom = mod2.joinRoom;
       return true;
     }catch(e2){
