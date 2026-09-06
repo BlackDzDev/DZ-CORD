@@ -297,7 +297,24 @@ input,textarea,select{font-family:inherit;}
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { joinRoom, selfId } from 'https://esm.run/trystero/torrent';
+let joinRoom = null;
+async function ensureTrystero(){
+  if(joinRoom) return true;
+  try{
+    const mod = await import('https://cdn.jsdelivr.net/npm/trystero/torrent/+esm');
+    joinRoom = mod.joinRoom;
+    return true;
+  }catch(e1){
+    try{
+      const mod2 = await import('https://esm.run/trystero/torrent');
+      joinRoom = mod2.joinRoom;
+      return true;
+    }catch(e2){
+      console.error('Falha ao carregar módulo de rede (trystero):', e1, e2);
+      return false;
+    }
+  }
+}
 
 /* ======================= UTILS ======================= */
 const $ = (s,r=document)=>r.querySelector(s);
@@ -504,7 +521,7 @@ window.__dz = {
 };
 
 /* ======================= ENTER / LEAVE SERVER (Trystero room) ======================= */
-function enterServer(serverId){
+async function enterServer(serverId){
   if(S.room && S.serverId===serverId) return;
   if(S.room) leaveServerRoom();
 
@@ -519,6 +536,15 @@ function enterServer(serverId){
   $('#inviteBtn').onclick = openInviteModal;
 
   $('#connBadge').style.display='flex';
+  $('#connText').textContent='carregando rede…';
+
+  const ok = await ensureTrystero();
+  if(S.serverId!==serverId) return; // user navigated away while loading
+  if(!ok){
+    $('#connText').textContent='falha ao conectar';
+    toast('Não foi possível carregar o módulo de rede. Verifique sua internet/firewall e recarregue a página.');
+    return;
+  }
   $('#connText').textContent='conectando…';
 
   const room = joinRoom({appId:'dzcord-app-v1', rtcConfig:RTC_CONFIG}, serverId);
