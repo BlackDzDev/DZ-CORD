@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -30,17 +30,17 @@ input {
     position: fixed;
     inset: 0;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     background: #111318;
 }
 
 .login-box {
     width: 380px;
     max-width: 90%;
-    background: #191c22;
     padding: 30px;
     border-radius: 15px;
+    background: #191c22;
     box-shadow: 0 10px 40px #0008;
 }
 
@@ -51,8 +51,8 @@ input {
 
 .login-box input {
     width: 100%;
-    padding: 13px;
     margin-top: 10px;
+    padding: 13px;
     border: 0;
     outline: none;
     border-radius: 8px;
@@ -70,6 +70,13 @@ input {
     color: white;
     font-weight: bold;
     cursor: pointer;
+}
+
+#loginStatus {
+    text-align: center;
+    color: #888;
+    margin-top: 12px;
+    font-size: 13px;
 }
 
 #app {
@@ -93,8 +100,14 @@ input {
     border-bottom: 1px solid #30333b;
 }
 
-#users {
+.members-title {
+    color: #777;
+    font-size: 12px;
     margin-top: 15px;
+}
+
+#users {
+    margin-top: 10px;
     overflow-y: auto;
     flex: 1;
 }
@@ -103,6 +116,7 @@ input {
     padding: 8px;
     color: #bbb;
     border-radius: 6px;
+    margin-bottom: 3px;
 }
 
 .user.me {
@@ -112,9 +126,9 @@ input {
 
 #main {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    min-width: 0;
 }
 
 #topbar {
@@ -131,6 +145,18 @@ input {
     font-size: 14px;
 }
 
+#status {
+    position: fixed;
+    right: 15px;
+    top: 70px;
+    z-index: 100;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #000b;
+    color: #aaa;
+    font-size: 12px;
+}
+
 #videos {
     flex: 1;
     padding: 15px;
@@ -143,17 +169,18 @@ input {
 
 .video-card {
     position: relative;
+    min-height: 220px;
     background: #08090b;
+    border: 1px solid #292c33;
     border-radius: 12px;
     overflow: hidden;
-    min-height: 220px;
-    border: 1px solid #292c33;
 }
 
 .video-card video {
     width: 100%;
     height: 100%;
     min-height: 220px;
+    display: block;
     object-fit: contain;
     background: #050505;
 }
@@ -172,15 +199,15 @@ input {
     position: absolute;
     right: 10px;
     top: 10px;
-    background: #ed4245;
     padding: 5px 8px;
     border-radius: 6px;
+    background: #ed4245;
     font-size: 11px;
     font-weight: bold;
 }
 
 #chat {
-    height: 230px;
+    height: 220px;
     background: #15171c;
     border-top: 1px solid #292c33;
     display: flex;
@@ -195,11 +222,12 @@ input {
 
 .message {
     margin-bottom: 7px;
+    word-break: break-word;
 }
 
 .message-name {
-    font-weight: bold;
     color: #7289da;
+    font-weight: bold;
 }
 
 .system {
@@ -209,26 +237,26 @@ input {
 
 #chatForm {
     display: flex;
-    padding: 10px;
     gap: 8px;
+    padding: 10px;
 }
 
 #chatInput {
     flex: 1;
-    background: #292c33;
+    padding: 12px;
     border: 0;
     outline: none;
-    color: white;
-    padding: 12px;
     border-radius: 7px;
+    background: #292c33;
+    color: white;
 }
 
 #chatForm button {
-    background: #5865f2;
-    border: 0;
-    color: white;
     padding: 0 18px;
+    border: 0;
     border-radius: 7px;
+    background: #5865f2;
+    color: white;
     cursor: pointer;
 }
 
@@ -236,16 +264,16 @@ input {
     height: 70px;
     background: #111318;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     gap: 10px;
 }
 
 .control {
-    border: 0;
-    border-radius: 50%;
     width: 48px;
     height: 48px;
+    border: 0;
+    border-radius: 50%;
     background: #292c33;
     color: white;
     cursor: pointer;
@@ -258,18 +286,6 @@ input {
 
 .control.danger {
     background: #ed4245;
-}
-
-#status {
-    position: fixed;
-    right: 15px;
-    top: 70px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    background: #000b;
-    color: #aaa;
-    font-size: 12px;
-    z-index: 50;
 }
 
 @media (max-width: 700px) {
@@ -290,22 +306,44 @@ input {
 
 <body>
 
+<!-- =====================================================
+     LOGIN
+===================================================== -->
+
 <div id="login">
+
     <div class="login-box">
+
         <h1>🌐 DZcord</h1>
 
-        <input id="nameInput" placeholder="Seu nome">
+        <input
+            id="nameInput"
+            type="text"
+            placeholder="Seu nome"
+            maxlength="30"
+        >
 
-        <input id="roomInput" placeholder="Código da sala">
+        <input
+            id="roomInput"
+            type="text"
+            placeholder="Código da sala"
+            maxlength="50"
+        >
 
-        <button id="joinBtn">Entrar na sala</button>
+        <button id="joinBtn">
+            Entrar na sala
+        </button>
 
-        <div id="loginStatus"
-             style="text-align:center;color:#888;margin-top:12px;font-size:13px;">
-        </div>
+        <div id="loginStatus"></div>
+
     </div>
+
 </div>
 
+
+<!-- =====================================================
+     APP
+===================================================== -->
 
 <div id="app">
 
@@ -315,7 +353,7 @@ input {
             🟣 DZcord
         </div>
 
-        <div style="color:#777;font-size:12px;margin-top:15px;">
+        <div class="members-title">
             PARTICIPANTES
         </div>
 
@@ -336,15 +374,11 @@ input {
 
 
         <div id="status">
-            Conectando...
+            Desconectado
         </div>
 
 
-        <section id="videos">
-
-            <!-- vídeos entram aqui -->
-
-        </section>
+        <section id="videos"></section>
 
 
         <section id="chat">
@@ -359,7 +393,9 @@ input {
                     placeholder="Digite uma mensagem..."
                 >
 
-                <button>Enviar</button>
+                <button type="submit">
+                    Enviar
+                </button>
 
             </form>
 
@@ -404,16 +440,16 @@ input {
 
 
 <script>
-/* =========================================================
+/* =====================================================
    DZCORD
-   ========================================================= */
+===================================================== */
 
 const $ = id => document.getElementById(id);
 
 
-/* ---------------------------------------------------------
+/* =====================================================
    ESTADO
-   --------------------------------------------------------- */
+===================================================== */
 
 let peer = null;
 
@@ -422,70 +458,83 @@ let myName = "";
 let room = "";
 
 let isHost = false;
-
 let hostId = "";
 
 let hostConnection = null;
 
 
-/* Participantes */
+/*
+    Todos os participantes conhecidos.
 
+    ID -> nome
+*/
 const participants = new Map();
 
 
-/* Conexões de dados */
+/*
+    Conexões de dados.
 
+    ID -> DataConnection
+*/
 const dataConnections = new Map();
 
 
-/* Chamadas WebRTC */
+/*
+    Chamadas WebRTC.
 
+    ID -> MediaConnection
+*/
 const mediaCalls = new Map();
 
 
-/* Streams */
+/* =====================================================
+   STREAMS
+===================================================== */
 
 let micStream = null;
 let cameraStream = null;
 let screenStream = null;
-
-
-/* Estado dos dispositivos */
 
 let micEnabled = false;
 let cameraEnabled = false;
 let screenEnabled = false;
 
 
-/* ---------------------------------------------------------
+/* =====================================================
    UTILIDADES
-   --------------------------------------------------------- */
+===================================================== */
 
-function safeRoom(roomName) {
-    return roomName
+function safeRoom(name) {
+
+    return name
         .trim()
         .toLowerCase()
         .replace(/[^a-z0-9_-]/g, "-");
 }
 
 
-function getHostId(roomName) {
-    return "dzcord-host-" + safeRoom(roomName);
+function getHostId(name) {
+
+    return "dzcord-host-" + safeRoom(name);
 }
 
 
 function setStatus(text) {
+
     $("status").textContent = text;
 }
 
 
 function addSystemMessage(text) {
 
-    const div = document.createElement("div");
+    const div =
+        document.createElement("div");
 
-    div.className = "message system";
+    div.className =
+        "message system";
 
-    div.textContent = "⚙️ " + text;
+    div.textContent =
+        "⚙️ " + text;
 
     $("messages").appendChild(div);
 
@@ -496,25 +545,32 @@ function addSystemMessage(text) {
 
 function addMessage(name, text) {
 
-    const div = document.createElement("div");
+    const div =
+        document.createElement("div");
 
-    div.className = "message";
+    div.className =
+        "message";
 
-    const nameSpan =
+
+    const nameElement =
         document.createElement("span");
 
-    nameSpan.className = "message-name";
+    nameElement.className =
+        "message-name";
 
-    nameSpan.textContent = name + ": ";
+    nameElement.textContent =
+        name + ": ";
 
-    const textSpan =
+
+    const textElement =
         document.createElement("span");
 
-    textSpan.textContent = text;
+    textElement.textContent =
+        text;
 
-    div.appendChild(nameSpan);
 
-    div.appendChild(textSpan);
+    div.appendChild(nameElement);
+    div.appendChild(textElement);
 
     $("messages").appendChild(div);
 
@@ -523,126 +579,71 @@ function addMessage(name, text) {
 }
 
 
-/* ---------------------------------------------------------
+/* =====================================================
    PARTICIPANTES
-   --------------------------------------------------------- */
+===================================================== */
+
+function addParticipant(id, name) {
+
+    if (!id) return;
+
+    participants.set(
+        id,
+        name || "Usuário"
+    );
+
+    updateUserList();
+}
+
 
 function updateUserList() {
 
-    const box = $("users");
+    const box =
+        $("users");
 
     box.innerHTML = "";
 
-    for (const [id, name] of participants) {
+
+    for (
+        const [id, name]
+        of participants
+    ) {
 
         const div =
             document.createElement("div");
 
         div.className =
             "user" +
-            (id === myPeerId ? " me" : "");
+            (id === myPeerId
+                ? " me"
+                : "");
+
 
         div.textContent =
-            (id === myPeerId ? "🟢 " : "⚪ ") +
+            (id === myPeerId
+                ? "🟢 "
+                : "⚪ ") +
             name;
+
 
         box.appendChild(div);
     }
 }
 
 
-function addParticipant(id, name) {
-
-    if (!id) return;
-
-    participants.set(id, name || "Usuário");
-
-    updateUserList();
-}
-
-
-/* ---------------------------------------------------------
+/* =====================================================
    VÍDEOS
-   --------------------------------------------------------- */
+===================================================== */
 
 function removeVideo(id) {
 
     const card =
-        document.getElementById("video-" + id);
+        document.getElementById(
+            "video-" + id
+        );
 
     if (card) {
         card.remove();
-    }
-}
-
-
-function showRemoteStream(id, stream) {
-
-    let card =
-        document.getElementById("video-" + id);
-
-
-    if (!card) {
-
-        card =
-            document.createElement("div");
-
-        card.className = "video-card";
-
-        card.id = "video-" + id;
-
-
-        const video =
-            document.createElement("video");
-
-        video.autoplay = true;
-
-        video.playsInline = true;
-
-        video.controls = false;
-
-
-        const name =
-            participants.get(id) ||
-            "Usuário";
-
-
-        const label =
-            document.createElement("div");
-
-        label.className = "video-name";
-
-        label.textContent = name;
-
-
-        const badge =
-            document.createElement("div");
-
-        badge.className = "live-badge";
-
-        badge.textContent = "AO VIVO";
-
-
-        card.appendChild(video);
-
-        card.appendChild(label);
-
-        card.appendChild(badge);
-
-
-        $("videos").appendChild(card);
-    }
-
-
-    const video =
-        card.querySelector("video");
-
-
-    if (video.srcObject !== stream) {
-
-        video.srcObject = stream;
-
-        video.play().catch(() => {});
     }
 }
 
@@ -658,7 +659,9 @@ function showLocalStream(stream) {
 
 
     let card =
-        document.getElementById("video-local");
+        document.getElementById(
+            "video-local"
+        );
 
 
     if (!card) {
@@ -677,9 +680,7 @@ function showLocalStream(stream) {
             document.createElement("video");
 
         video.autoplay = true;
-
         video.muted = true;
-
         video.playsInline = true;
 
 
@@ -704,11 +705,8 @@ function showLocalStream(stream) {
 
 
         card.appendChild(video);
-
         card.appendChild(label);
-
         card.appendChild(badge);
-
 
         $("videos").prepend(card);
     }
@@ -717,15 +715,89 @@ function showLocalStream(stream) {
     const video =
         card.querySelector("video");
 
-    video.srcObject = stream;
+    video.srcObject =
+        stream;
 
     video.play().catch(() => {});
 }
 
 
-/* ---------------------------------------------------------
+function showRemoteStream(id, stream) {
+
+    let card =
+        document.getElementById(
+            "video-" + id
+        );
+
+
+    if (!card) {
+
+        card =
+            document.createElement("div");
+
+        card.className =
+            "video-card";
+
+        card.id =
+            "video-" + id;
+
+
+        const video =
+            document.createElement("video");
+
+        video.autoplay = true;
+        video.playsInline = true;
+        video.controls = false;
+
+
+        const label =
+            document.createElement("div");
+
+        label.className =
+            "video-name";
+
+        label.textContent =
+            participants.get(id) ||
+            "Usuário";
+
+
+        const badge =
+            document.createElement("div");
+
+        badge.className =
+            "live-badge";
+
+        badge.textContent =
+            "AO VIVO";
+
+
+        card.appendChild(video);
+        card.appendChild(label);
+        card.appendChild(badge);
+
+        $("videos").appendChild(card);
+    }
+
+
+    const video =
+        card.querySelector("video");
+
+
+    if (
+        video.srcObject !== stream
+    ) {
+
+        video.srcObject =
+            stream;
+
+        video.play().catch(() => {});
+    }
+}
+
+
+/* =====================================================
    STREAM DE SAÍDA
-   --------------------------------------------------------- */
+===================================================== */
 
 function getOutgoingStream() {
 
@@ -734,54 +806,77 @@ function getOutgoingStream() {
 
 
     /*
-       Microfone
+       MICROFONE
     */
 
-    if (micEnabled && micStream) {
-
+    if (
+        micEnabled &&
         micStream
-            .getAudioTracks()
-            .forEach(track => {
-                stream.addTrack(track);
-            });
+    ) {
+
+        for (
+            const track
+            of micStream.getAudioTracks()
+        ) {
+
+            stream.addTrack(track);
+        }
     }
 
 
     /*
-       Tela tem prioridade sobre câmera
+       TELA
+       Tela possui prioridade sobre câmera.
     */
 
-    if (screenEnabled && screenStream) {
-
+    if (
+        screenEnabled &&
         screenStream
-            .getVideoTracks()
-            .forEach(track => {
-                stream.addTrack(track);
-            });
+    ) {
+
+        for (
+            const track
+            of screenStream.getVideoTracks()
+        ) {
+
+            stream.addTrack(track);
+        }
 
 
         /*
-           Se o compartilhamento tiver áudio
-           e o microfone não estiver ligado,
-           enviaremos o áudio da tela.
+           Áudio da tela,
+           caso o navegador forneça.
         */
 
         if (!micEnabled) {
 
-            screenStream
-                .getAudioTracks()
-                .forEach(track => {
-                    stream.addTrack(track);
-                });
+            for (
+                const track
+                of screenStream.getAudioTracks()
+            ) {
+
+                stream.addTrack(track);
+            }
         }
 
-    } else if (cameraEnabled && cameraStream) {
+    }
 
+    /*
+       CÂMERA
+    */
+
+    else if (
+        cameraEnabled &&
         cameraStream
-            .getVideoTracks()
-            .forEach(track => {
-                stream.addTrack(track);
-            });
+    ) {
+
+        for (
+            const track
+            of cameraStream.getVideoTracks()
+        ) {
+
+            stream.addTrack(track);
+        }
     }
 
 
@@ -791,64 +886,92 @@ function getOutgoingStream() {
 }
 
 
-/* ---------------------------------------------------------
-   CHAMADAS
-   --------------------------------------------------------- */
+/* =====================================================
+   CONFIGURAR CHAMADA
+===================================================== */
 
 function setupCall(call) {
 
-    const id = call.peer;
+    const remoteId =
+        call.peer;
 
 
-    call.on("stream", remoteStream => {
+    call.on(
+        "stream",
+        remoteStream => {
 
-        console.log(
-            "STREAM RECEBIDO DE:",
-            id,
-            remoteStream
-        );
-
-
-        showRemoteStream(
-            id,
-            remoteStream
-        );
+            console.log(
+                "STREAM RECEBIDO:",
+                remoteId,
+                remoteStream
+            );
 
 
-        setStatus(
-            "Recebendo transmissão de " +
-            (participants.get(id) || "usuário")
-        );
-    });
+            showRemoteStream(
+                remoteId,
+                remoteStream
+            );
 
 
-    call.on("close", () => {
-
-        if (mediaCalls.get(id) === call) {
-            mediaCalls.delete(id);
+            setStatus(
+                "Recebendo mídia de " +
+                (
+                    participants.get(remoteId)
+                    || "usuário"
+                )
+            );
         }
-
-        removeVideo(id);
-    });
+    );
 
 
-    call.on("error", err => {
+    call.on(
+        "close",
+        () => {
 
-        console.error(
-            "Erro na chamada:",
-            err
-        );
+            if (
+                mediaCalls.get(remoteId)
+                === call
+            ) {
 
-        if (mediaCalls.get(id) === call) {
-            mediaCalls.delete(id);
+                mediaCalls.delete(
+                    remoteId
+                );
+            }
+
+            removeVideo(
+                remoteId
+            );
         }
-    });
+    );
+
+
+    call.on(
+        "error",
+        error => {
+
+            console.error(
+                "Erro na chamada:",
+                error
+            );
+
+
+            if (
+                mediaCalls.get(remoteId)
+                === call
+            ) {
+
+                mediaCalls.delete(
+                    remoteId
+                );
+            }
+        }
+    );
 }
 
 
-/* ---------------------------------------------------------
-   FAZER CHAMADA
-   --------------------------------------------------------- */
+/* =====================================================
+   CHAMAR PARTICIPANTE
+===================================================== */
 
 function callPeer(id) {
 
@@ -867,16 +990,19 @@ function callPeer(id) {
 
 
     /*
-       Já existe chamada?
+       Já existe chamada.
     */
 
-    if (mediaCalls.has(id)) {
+    if (
+        mediaCalls.has(id)
+    ) {
+
         return;
     }
 
 
     console.log(
-        "Chamando:",
+        "FAZENDO CHAMADA:",
         id
     );
 
@@ -896,6 +1022,7 @@ function callPeer(id) {
 
 
         if (!call) {
+
             console.error(
                 "PeerJS não criou a chamada."
             );
@@ -912,35 +1039,142 @@ function callPeer(id) {
 
         setupCall(call);
 
-    } catch (err) {
+    } catch (error) {
 
         console.error(
             "Erro ao chamar:",
-            err
+            error
         );
     }
 }
 
 
-/* ---------------------------------------------------------
-   RENEGOCIAR TODAS AS CHAMADAS
-   --------------------------------------------------------- */
+/* =====================================================
+   RECEBER CHAMADA
+===================================================== */
 
-function renegotiateAll() {
+function handleIncomingCall(call) {
+
+    const remoteId =
+        call.peer;
+
 
     console.log(
-        "Renegociando mídia..."
+        "CHAMADA RECEBIDA DE:",
+        remoteId
     );
 
 
     /*
-       Fecha as chamadas antigas.
-       Isso é proposital:
-       garante que câmera/tela nova
-       seja enviada corretamente.
+       Evita duas chamadas
+       simultâneas entre as mesmas pessoas.
     */
 
-    for (const call of mediaCalls.values()) {
+    if (
+        mediaCalls.has(remoteId)
+    ) {
+
+        const existing =
+            mediaCalls.get(remoteId);
+
+
+        /*
+           Se nosso ID for menor,
+           mantemos a chamada que fizemos.
+        */
+
+        if (
+            String(myPeerId) <
+            String(remoteId)
+        ) {
+
+            call.close();
+
+            return;
+        }
+
+
+        /*
+           Caso contrário,
+           aceitamos a recebida.
+        */
+
+        try {
+            existing.close();
+        } catch {}
+
+        mediaCalls.delete(
+            remoteId
+        );
+    }
+
+
+    const outgoing =
+        getOutgoingStream();
+
+
+    try {
+
+        /*
+           Se temos câmera/mic/tela,
+           enviamos também.
+        */
+
+        if (outgoing) {
+
+            call.answer(
+                outgoing
+            );
+
+        } else {
+
+            /*
+               Mesmo sem mídia local,
+               podemos receber a tela
+               do amigo.
+            */
+
+            call.answer();
+        }
+
+
+        mediaCalls.set(
+            remoteId,
+            call
+        );
+
+
+        setupCall(call);
+
+    } catch (error) {
+
+        console.error(
+            "Erro respondendo chamada:",
+            error
+        );
+    }
+}
+
+
+/* =====================================================
+   RENEGOCIAR
+===================================================== */
+
+function renegotiateAll() {
+
+    console.log(
+        "Atualizando chamadas..."
+    );
+
+
+    /*
+       Fecha chamadas antigas.
+    */
+
+    for (
+        const call
+        of mediaCalls.values()
+    ) {
 
         try {
             call.close();
@@ -956,10 +1190,12 @@ function renegotiateAll() {
 
 
     /*
-       Prévia local
+       Atualiza prévia local.
     */
 
-    showLocalStream(stream);
+    showLocalStream(
+        stream
+    );
 
 
     if (!stream) {
@@ -973,157 +1209,53 @@ function renegotiateAll() {
 
 
     /*
-       Chama todos os participantes.
+       Aguarda um pouco para
+       evitar colisões de chamadas.
     */
 
-    for (const id of participants.keys()) {
+    let delay = 100;
 
-        if (id !== myPeerId) {
-
-            setTimeout(() => {
-                callPeer(id);
-            }, 150);
-        }
-    }
-}
-
-
-/* ---------------------------------------------------------
-   CHAMADA RECEBIDA
-   --------------------------------------------------------- */
-
-function handleIncomingCall(call) {
-
-    const remoteId =
-        call.peer;
-
-
-    console.log(
-        "CHAMADA RECEBIDA DE:",
-        remoteId
-    );
-
-
-    /*
-       Se já existe uma chamada,
-       mantemos apenas uma.
-    */
-
-    if (mediaCalls.has(remoteId)) {
-
-        const existing =
-            mediaCalls.get(remoteId);
-
-
-        /*
-           Se nós somos o ID menor,
-           mantemos nossa chamada.
-        */
-
-        if (
-            String(myPeerId) <
-            String(remoteId)
-        ) {
-
-            call.close();
-
-            return;
-
-        } else {
-
-            try {
-                existing.close();
-            } catch {}
-
-            mediaCalls.delete(
-                remoteId
-            );
-        }
-    }
-
-
-    const outgoing =
-        getOutgoingStream();
-
-
-    try {
-
-        /*
-           Mesmo sem stream local,
-           podemos receber a tela do amigo.
-        */
-
-        if (outgoing) {
-            call.answer(outgoing);
-        } else {
-            call.answer();
-        }
-
-
-        mediaCalls.set(
-            remoteId,
-            call
-        );
-
-
-        setupCall(call);
-
-
-    } catch (err) {
-
-        console.error(
-            "Erro ao responder chamada:",
-            err
-        );
-    }
-}
-
-
-/* ---------------------------------------------------------
-   DADOS / CHAT
-   --------------------------------------------------------- */
-
-function sendToHost(data) {
-
-    if (
-        hostConnection &&
-        hostConnection.open
-    ) {
-
-        hostConnection.send(data);
-
-        return true;
-    }
-
-    return false;
-}
-
-
-function broadcast(data) {
 
     for (
-        const connection
-        of dataConnections.values()
+        const id
+        of participants.keys()
     ) {
 
-        if (connection.open) {
-
-            try {
-                connection.send(data);
-            } catch {}
+        if (
+            id === myPeerId
+        ) {
+            continue;
         }
+
+
+        setTimeout(
+            () => {
+
+                callPeer(id);
+
+            },
+            delay
+        );
+
+
+        delay += 150;
     }
+
+
+    setStatus(
+        "Mídia ativada"
+    );
 }
 
 
-/* ---------------------------------------------------------
-   CONEXÃO DE DADOS
-   --------------------------------------------------------- */
+/* =====================================================
+   CONEXÕES DE DADOS
+===================================================== */
 
 function handleDataConnection(conn) {
 
     console.log(
-        "Conexão de dados:",
+        "CONEXÃO DATA:",
         conn.peer
     );
 
@@ -1134,95 +1266,150 @@ function handleDataConnection(conn) {
     );
 
 
-    conn.on("open", () => {
+    conn.on(
+        "open",
+        () => {
 
-        console.log(
-            "Data aberta:",
-            conn.peer
-        );
-
-
-        /*
-           Se for host recebendo cliente.
-        */
-
-        if (isHost) {
-
-            conn.send({
-                type: "welcome",
-                hostId: hostId,
-                roster:
-                    Array.from(
-                        participants.entries()
-                    )
-            });
-        }
-    });
-
-
-    conn.on("data", data => {
-
-        handleDataMessage(
-            conn,
-            data
-        );
-    });
-
-
-    conn.on("close", () => {
-
-        dataConnections.delete(
-            conn.peer
-        );
-
-
-        if (isHost) {
-
-            participants.delete(
+            console.log(
+                "DATA ABERTA:",
                 conn.peer
             );
 
-            updateUserList();
+
+            /*
+               Somente host envia
+               informações iniciais.
+            */
+
+            if (isHost) {
+
+                conn.send({
+                    type: "welcome",
+                    hostId: hostId,
+                    roster:
+                        Array.from(
+                            participants.entries()
+                        )
+                });
+            }
+        }
+    );
 
 
-            broadcast({
-                type: "user-left",
-                id: conn.peer
-            });
+    conn.on(
+        "data",
+        data => {
 
-
-            removeVideo(
-                conn.peer
+            handleDataMessage(
+                conn,
+                data
             );
         }
-    });
+    );
 
 
-    conn.on("error", err => {
+    conn.on(
+        "close",
+        () => {
 
-        console.error(
-            "Erro data:",
-            err
-        );
-    });
+            dataConnections.delete(
+                conn.peer
+            );
+
+
+            if (isHost) {
+
+                const oldName =
+                    participants.get(
+                        conn.peer
+                    ) ||
+                    "Usuário";
+
+
+                participants.delete(
+                    conn.peer
+                );
+
+
+                updateUserList();
+
+
+                /*
+                   Avisa todos.
+                */
+
+                broadcast({
+                    type: "user-left",
+                    id: conn.peer
+                });
+
+
+                removeVideo(
+                    conn.peer
+                );
+
+
+                const call =
+                    mediaCalls.get(
+                        conn.peer
+                    );
+
+
+                if (call) {
+
+                    try {
+                        call.close();
+                    } catch {}
+
+                    mediaCalls.delete(
+                        conn.peer
+                    );
+                }
+
+
+                addSystemMessage(
+                    oldName +
+                    " saiu da sala."
+                );
+            }
+        }
+    );
+
+
+    conn.on(
+        "error",
+        error => {
+
+            console.error(
+                "Erro DATA:",
+                error
+            );
+        }
+    );
 }
 
 
-/* ---------------------------------------------------------
-   MENSAGENS DATA
-   --------------------------------------------------------- */
+/* =====================================================
+   MENSAGENS
+===================================================== */
 
 function handleDataMessage(
     conn,
     data
 ) {
 
-    if (!data || !data.type) {
+    if (
+        !data ||
+        !data.type
+    ) {
+
         return;
     }
 
 
-    /* ---------------- JOIN ---------------- */
+    /* =================================================
+       JOIN
+    ================================================= */
 
     if (
         isHost &&
@@ -1244,7 +1431,8 @@ function handleDataMessage(
 
 
         /*
-           Envia lista completa ao novo usuário.
+           Envia lista atualizada
+           para o novo usuário.
         */
 
         conn.send({
@@ -1257,7 +1445,7 @@ function handleDataMessage(
 
 
         /*
-           Avisa os outros.
+           Avisa todos os outros.
         */
 
         broadcast({
@@ -1272,11 +1460,14 @@ function handleDataMessage(
             " entrou na sala."
         );
 
+
         return;
     }
 
 
-    /* ---------------- ROSTER ---------------- */
+    /* =================================================
+       ROSTER
+    ================================================= */
 
     if (
         data.type === "roster"
@@ -1301,19 +1492,30 @@ function handleDataMessage(
 
 
         /*
-           Se já temos mídia,
-           chama os participantes.
+           Se já estamos transmitindo,
+           conecta com todos.
         */
 
-        if (getOutgoingStream()) {
-            renegotiateAll();
+        if (
+            getOutgoingStream()
+        ) {
+
+            setTimeout(
+                () => {
+                    renegotiateAll();
+                },
+                300
+            );
         }
+
 
         return;
     }
 
 
-    /* ---------------- USER JOINED ---------------- */
+    /* =================================================
+       USER JOINED
+    ================================================= */
 
     if (
         data.type === "user-joined"
@@ -1333,7 +1535,7 @@ function handleDataMessage(
 
         /*
            Se temos mídia,
-           chama o novo usuário.
+           chamamos o novo usuário.
         */
 
         if (
@@ -1341,20 +1543,24 @@ function handleDataMessage(
             data.id !== myPeerId
         ) {
 
-            setTimeout(() => {
-
-                callPeer(
-                    data.id
-                );
-
-            }, 500);
+            setTimeout(
+                () => {
+                    callPeer(
+                        data.id
+                    );
+                },
+                500
+            );
         }
+
 
         return;
     }
 
 
-    /* ---------------- USER LEFT ---------------- */
+    /* =================================================
+       USER LEFT
+    ================================================= */
 
     if (
         data.type === "user-left"
@@ -1403,24 +1609,43 @@ function handleDataMessage(
             " saiu da sala."
         );
 
+
         return;
     }
 
 
-    /* ---------------- CHAT ---------------- */
+    /* =================================================
+       CHAT
+    ================================================= */
 
     if (
         isHost &&
         data.type === "chat"
     ) {
 
+        /*
+           Host mostra a própria mensagem.
+        */
+
+        addMessage(
+            data.name,
+            data.text
+        );
+
+
+        /*
+           Envia para todos os clientes.
+        */
+
         broadcast(data);
+
 
         return;
     }
 
 
     if (
+        !isHost &&
         data.type === "chat"
     ) {
 
@@ -1434,72 +1659,83 @@ function handleDataMessage(
 }
 
 
-/* ---------------------------------------------------------
-   HOST
-   --------------------------------------------------------- */
+/* =====================================================
+   BROADCAST
+===================================================== */
 
-function becomeHost() {
+function broadcast(data) {
 
-    isHost = true;
+    for (
+        const conn
+        of dataConnections.values()
+    ) {
+
+        if (
+            conn.open
+        ) {
+
+            try {
+                conn.send(data);
+            } catch {}
+        }
+    }
+}
+
+
+/* =====================================================
+   ENVIAR PARA HOST
+===================================================== */
+
+function sendToHost(data) {
+
+    if (
+        hostConnection &&
+        hostConnection.open
+    ) {
+
+        try {
+
+            hostConnection.send(
+                data
+            );
+
+            return true;
+
+        } catch {}
+    }
+
+
+    return false;
+}
+
+
+/* =====================================================
+   CRIAR HOST
+===================================================== */
+
+function createHost(hostPeer) {
+
+    peer =
+        hostPeer;
+
+    isHost =
+        true;
 
     hostId =
         getHostId(room);
 
-
-    console.log(
-        "Criando HOST:",
-        hostId
-    );
+    myPeerId =
+        hostPeer.id;
 
 
-    peer =
-        new Peer(hostId);
-
-
-    peer.on("open", id => {
-
-        myPeerId = id;
-
-
-        addParticipant(
-            myPeerId,
-            myName
-        );
-
-
-        $("login").style.display =
-            "none";
-
-        $("app").style.display =
-            "flex";
-
-
-        $("roomInfo").textContent =
-            "Código: " + room;
-
-
-        setStatus(
-            "Sala criada"
-        );
-
-
-        addSystemMessage(
-            "Você criou a sala."
-        );
-
-
-        console.log(
-            "HOST ONLINE:",
-            id
-        );
-    });
-
+    /*
+       Registra eventos.
+    */
 
     peer.on(
         "connection",
         handleDataConnection
     );
-
 
     peer.on(
         "call",
@@ -1507,81 +1743,155 @@ function becomeHost() {
     );
 
 
-    peer.on("error", err => {
+    peer.on(
+        "error",
+        error => {
 
-        console.error(
-            "Erro HOST:",
-            err
-        );
+            console.error(
+                "Erro HOST:",
+                error
+            );
 
-
-        setStatus(
-            "Erro: " +
-            (err.type || err.message)
-        );
-    });
-
-
-    peer.on("disconnected", () => {
-
-        setStatus(
-            "Desconectado. Tentando reconectar..."
-        );
+            setStatus(
+                "Erro: " +
+                (
+                    error.type ||
+                    error.message
+                )
+            );
+        }
+    );
 
 
-        try {
-            peer.reconnect();
-        } catch {}
-    });
+    peer.on(
+        "disconnected",
+        () => {
+
+            setStatus(
+                "Desconectado..."
+            );
+
+
+            try {
+                peer.reconnect();
+            } catch {}
+        }
+    );
+
+
+    /*
+       Adiciona o host.
+    */
+
+    participants.clear();
+
+
+    addParticipant(
+        myPeerId,
+        myName
+    );
+
+
+    /*
+       Abre aplicação.
+    */
+
+    $("login").style.display =
+        "none";
+
+    $("app").style.display =
+        "flex";
+
+
+    $("roomInfo").textContent =
+        "Código: " + room;
+
+
+    setStatus(
+        "Sala criada"
+    );
+
+
+    addSystemMessage(
+        "Você criou a sala."
+    );
 }
 
 
-/* ---------------------------------------------------------
-   CLIENTE
-   --------------------------------------------------------- */
+/* =====================================================
+   ENTRAR COMO CLIENTE
+===================================================== */
 
 function becomeClient() {
 
-    isHost = false;
+    isHost =
+        false;
+
 
     hostId =
         getHostId(room);
 
 
     console.log(
-        "Entrando como cliente.",
-        "Host:",
+        "ENTRANDO COMO CLIENTE"
+    );
+
+
+    console.log(
+        "HOST:",
         hostId
     );
 
+
+    /*
+       Cliente recebe ID aleatório.
+    */
 
     peer =
         new Peer();
 
 
-    peer.on("open", id => {
+    peer.on(
+        "open",
+        id => {
 
-        myPeerId = id;
-
-
-        $("login").style.display =
-            "none";
-
-        $("app").style.display =
-            "flex";
+            myPeerId =
+                id;
 
 
-        $("roomInfo").textContent =
-            "Código: " + room;
+            console.log(
+                "MEU ID:",
+                id
+            );
 
 
-        setStatus(
-            "Conectando à sala..."
-        );
+            /*
+               Abre aplicação.
+            */
+
+            $("login").style.display =
+                "none";
+
+            $("app").style.display =
+                "flex";
 
 
-        connectToHost();
-    });
+            $("roomInfo").textContent =
+                "Código: " + room;
+
+
+            setStatus(
+                "Conectando à sala..."
+            );
+
+
+            /*
+               Conecta ao host.
+            */
+
+            connectToHost();
+        }
+    );
 
 
     peer.on(
@@ -1596,43 +1906,52 @@ function becomeClient() {
     );
 
 
-    peer.on("error", err => {
+    peer.on(
+        "error",
+        error => {
 
-        console.error(
-            "Erro cliente:",
-            err
-        );
-
-
-        setStatus(
-            "Erro: " +
-            (err.type || err.message)
-        );
-    });
+            console.error(
+                "Erro CLIENTE:",
+                error
+            );
 
 
-    peer.on("disconnected", () => {
+            setStatus(
+                "Erro: " +
+                (
+                    error.type ||
+                    error.message
+                )
+            );
+        }
+    );
 
-        setStatus(
-            "Desconectado..."
-        );
+
+    peer.on(
+        "disconnected",
+        () => {
+
+            setStatus(
+                "Desconectado..."
+            );
 
 
-        try {
-            peer.reconnect();
-        } catch {}
-    });
+            try {
+                peer.reconnect();
+            } catch {}
+        }
+    );
 }
 
 
-/* ---------------------------------------------------------
+/* =====================================================
    CONECTAR AO HOST
-   --------------------------------------------------------- */
+===================================================== */
 
 function connectToHost() {
 
     console.log(
-        "Conectando ao host:",
+        "CONECTANDO AO HOST:",
         hostId
     );
 
@@ -1646,55 +1965,71 @@ function connectToHost() {
         );
 
 
-    hostConnection.on("open", () => {
+    hostConnection.on(
+        "open",
+        () => {
 
-        console.log(
-            "Conectado ao host."
-        );
-
-
-        setStatus(
-            "Conectado"
-        );
+            console.log(
+                "CONECTADO AO HOST"
+            );
 
 
-        hostConnection.send({
-            type: "join",
-            name: myName
-        });
-    });
+            setStatus(
+                "Conectado"
+            );
 
 
-    hostConnection.on("data", data => {
+            /*
+               Envia nosso nome.
+            */
 
-        handleDataMessage(
-            hostConnection,
-            data
-        );
-    });
-
-
-    hostConnection.on("close", () => {
-
-        setStatus(
-            "Conexão com o host perdida."
-        );
-    });
+            hostConnection.send({
+                type: "join",
+                name: myName
+            });
+        }
+    );
 
 
-    hostConnection.on("error", err => {
+    hostConnection.on(
+        "data",
+        data => {
 
-        console.error(
-            "Erro host:",
-            err
-        );
-    });
+            handleDataMessage(
+                hostConnection,
+                data
+            );
+        }
+    );
+
+
+    hostConnection.on(
+        "close",
+        () => {
+
+            setStatus(
+                "Conexão com a sala perdida."
+            );
+        }
+    );
+
+
+    hostConnection.on(
+        "error",
+        error => {
+
+            console.error(
+                "Erro HOST CONNECTION:",
+                error
+            );
+        }
+    );
 }
 
 
-/* ---------------------------------------------------------
-   ENTRAR
-   --------------------------------------------------------- */
+/* =====================================================
+   ENTRAR NA SALA
+===================================================== */
 
 $("joinBtn").onclick =
     () => {
@@ -1733,7 +2068,7 @@ $("joinBtn").onclick =
 
         $("loginStatus")
             .textContent =
-            "Conectando...";
+            "Entrando na sala...";
 
 
         const wantedHost =
@@ -1741,107 +2076,176 @@ $("joinBtn").onclick =
 
 
         /*
-           Primeiro tentamos abrir
-           o ID do host.
+           Tenta ocupar o ID fixo
+           do host.
 
-           Se conseguir, a sala já existe.
+           Se conseguir:
+           somos o primeiro.
+
+           Se receber unavailable-id:
+           alguém já é o host.
         */
 
-        const testPeer =
-            new Peer();
-
-
-        let finished = false;
-
-
-        testPeer.on("open", () => {
-
-            testPeer.destroy();
-
-
-            if (!finished) {
-
-                finished = true;
-
-                becomeHost();
-            }
-        });
-
-
-        testPeer.on("error", err => {
-
-            console.log(
-                "Teste de host:",
-                err.type
+        const hostAttempt =
+            new Peer(
+                wantedHost
             );
 
 
-            try {
-                testPeer.destroy();
-            } catch {}
+        let decided =
+            false;
 
 
-            if (!finished) {
+        hostAttempt.on(
+            "open",
+            id => {
 
-                finished = true;
+                if (decided) {
+                    return;
+                }
 
-                becomeClient();
+
+                decided = true;
+
+
+                console.log(
+                    "HOST CRIADO:",
+                    id
+                );
+
+
+                createHost(
+                    hostAttempt
+                );
             }
-        });
+        );
+
+
+        hostAttempt.on(
+            "error",
+            error => {
+
+                if (decided) {
+                    return;
+                }
+
+
+                console.log(
+                    "TENTATIVA HOST:",
+                    error.type
+                );
+
+
+                /*
+                   A sala já existe.
+                */
+
+                if (
+                    error.type ===
+                    "unavailable-id"
+                ) {
+
+                    decided = true;
+
+
+                    try {
+                        hostAttempt.destroy();
+                    } catch {}
+
+
+                    becomeClient();
+
+
+                    return;
+                }
+
+
+                /*
+                   Outro erro.
+                */
+
+                console.error(
+                    error
+                );
+
+
+                $("loginStatus")
+                    .textContent =
+                    "Erro: " +
+                    (
+                        error.type ||
+                        error.message
+                    );
+            }
+        );
 
 
         /*
-           Timeout para evitar ficar preso.
+           Timeout.
+
+           Se o PeerJS não responder,
+           tenta entrar como cliente.
         */
 
-        setTimeout(() => {
+        setTimeout(
+            () => {
 
-            if (!finished) {
+                if (decided) {
+                    return;
+                }
 
-                finished = true;
+
+                decided = true;
 
 
                 try {
-                    testPeer.destroy();
+                    hostAttempt.destroy();
                 } catch {}
 
 
                 becomeClient();
-            }
 
-        }, 2500);
+            },
+            5000
+        );
     };
 
 
-/* ---------------------------------------------------------
-   ENTER NO LOGIN
-   --------------------------------------------------------- */
-
-$("roomInput").addEventListener(
-    "keydown",
-    e => {
-
-        if (e.key === "Enter") {
-            $("joinBtn").click();
-        }
-    }
-);
-
+/* =====================================================
+   ENTER
+===================================================== */
 
 $("nameInput").addEventListener(
     "keydown",
-    e => {
+    event => {
 
-        if (e.key === "Enter") {
+        if (
+            event.key === "Enter"
+        ) {
+
             $("joinBtn").click();
         }
     }
 );
 
 
-/* ---------------------------------------------------------
+$("roomInput").addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            $("joinBtn").click();
+        }
+    }
+);
+
+
+/* =====================================================
    MICROFONE
-   --------------------------------------------------------- */
+===================================================== */
 
 $("micBtn").onclick =
     async () => {
@@ -1857,7 +2261,8 @@ $("micBtn").onclick =
                         });
 
 
-                micEnabled = true;
+                micEnabled =
+                    true;
 
 
                 $("micBtn")
@@ -1873,17 +2278,23 @@ $("micBtn").onclick =
 
                 if (micStream) {
 
-                    micStream
-                        .getTracks()
-                        .forEach(track => {
+                    for (
+                        const track
+                        of micStream.getTracks()
+                    ) {
+
+                        try {
                             track.stop();
-                        });
+                        } catch {}
+                    }
                 }
 
 
-                micStream = null;
+                micStream =
+                    null;
 
-                micEnabled = false;
+                micEnabled =
+                    false;
 
 
                 $("micBtn")
@@ -1899,9 +2310,12 @@ $("micBtn").onclick =
 
             renegotiateAll();
 
-        } catch (err) {
+        } catch (error) {
 
-            console.error(err);
+            console.error(
+                error
+            );
+
 
             alert(
                 "Não foi possível acessar o microfone."
@@ -1910,9 +2324,9 @@ $("micBtn").onclick =
     };
 
 
-/* ---------------------------------------------------------
+/* =====================================================
    CÂMERA
-   --------------------------------------------------------- */
+===================================================== */
 
 $("cameraBtn").onclick =
     async () => {
@@ -1928,7 +2342,8 @@ $("cameraBtn").onclick =
                         });
 
 
-                cameraEnabled = true;
+                cameraEnabled =
+                    true;
 
 
                 $("cameraBtn")
@@ -1944,17 +2359,23 @@ $("cameraBtn").onclick =
 
                 if (cameraStream) {
 
-                    cameraStream
-                        .getTracks()
-                        .forEach(track => {
+                    for (
+                        const track
+                        of cameraStream.getTracks()
+                    ) {
+
+                        try {
                             track.stop();
-                        });
+                        } catch {}
+                    }
                 }
 
 
-                cameraStream = null;
+                cameraStream =
+                    null;
 
-                cameraEnabled = false;
+                cameraEnabled =
+                    false;
 
 
                 $("cameraBtn")
@@ -1970,9 +2391,12 @@ $("cameraBtn").onclick =
 
             renegotiateAll();
 
-        } catch (err) {
+        } catch (error) {
 
-            console.error(err);
+            console.error(
+                error
+            );
+
 
             alert(
                 "Não foi possível acessar a câmera."
@@ -1981,16 +2405,16 @@ $("cameraBtn").onclick =
     };
 
 
-/* ---------------------------------------------------------
+/* =====================================================
    COMPARTILHAR TELA
-   --------------------------------------------------------- */
+===================================================== */
 
 $("screenBtn").onclick =
     async () => {
 
         /*
            Se já está transmitindo,
-           botão para a transmissão.
+           para.
         */
 
         if (screenEnabled) {
@@ -2005,9 +2429,9 @@ $("screenBtn").onclick =
 
             /*
                IMPORTANTE:
-               getDisplayMedia precisa
-               ser chamado diretamente
-               pelo clique do usuário.
+
+               getDisplayMedia precisa ser
+               chamado diretamente pelo clique.
             */
 
             const stream =
@@ -2021,7 +2445,7 @@ $("screenBtn").onclick =
 
 
             /*
-               Guarda exatamente esta stream.
+               Guarda a stream.
             */
 
             screenStream =
@@ -2038,8 +2462,7 @@ $("screenBtn").onclick =
 
 
             /*
-               Mostra imediatamente
-               a própria tela.
+               Mostra sua própria tela.
             */
 
             showLocalStream(
@@ -2053,15 +2476,14 @@ $("screenBtn").onclick =
 
 
             setStatus(
-                "🖥️ Transmitindo sua tela"
+                "🖥️ Transmitindo tela"
             );
 
 
             /*
-               O navegador dispara onended
-               quando o usuário clica em
-               "Parar compartilhamento"
-               na interface do Chrome.
+               Detecta quando o usuário
+               clica em "Parar compartilhamento"
+               no Chrome.
             */
 
             const videoTrack =
@@ -2072,11 +2494,6 @@ $("screenBtn").onclick =
 
                 videoTrack.onended =
                     () => {
-
-                        /*
-                           Só encerra se esta
-                           ainda for a stream atual.
-                        */
 
                         if (
                             screenStream ===
@@ -2092,28 +2509,26 @@ $("screenBtn").onclick =
 
 
             /*
-               AGORA envia a tela
-               para todos os participantes.
+               Envia para TODOS.
             */
 
             renegotiateAll();
 
 
-        } catch (err) {
+        } catch (error) {
 
             console.error(
-                "Erro no compartilhamento:",
-                err
+                "SCREEN ERROR:",
+                error
             );
 
 
             /*
-               Cancelar o seletor do Chrome
-               não é erro real.
+               Cancelou o seletor.
             */
 
             if (
-                err.name ===
+                error.name ===
                 "AbortError"
             ) {
 
@@ -2126,28 +2541,29 @@ $("screenBtn").onclick =
 
 
             alert(
-                "Erro ao compartilhar a tela:\n" +
-                err.message
+                "Erro ao compartilhar tela:\n" +
+                error.message
             );
         }
     };
 
 
-/* ---------------------------------------------------------
+/* =====================================================
    PARAR TELA
-   --------------------------------------------------------- */
+===================================================== */
 
-function stopScreenShare(
-    fromButton = true
-) {
+function stopScreenShare() {
 
     const oldStream =
         screenStream;
 
 
-    screenStream = null;
+    screenStream =
+        null;
 
-    screenEnabled = false;
+
+    screenEnabled =
+        false;
 
 
     $("screenBtn")
@@ -2157,35 +2573,31 @@ function stopScreenShare(
 
     if (oldStream) {
 
-        oldStream
-            .getTracks()
-            .forEach(track => {
+        for (
+            const track
+            of oldStream.getTracks()
+        ) {
 
-                /*
-                   Evita problemas com
-                   track já encerrada.
-                */
-
-                try {
-                    track.stop();
-                } catch {}
-            });
+            try {
+                track.stop();
+            } catch {}
+        }
     }
 
 
     /*
-       Volta para câmera/microfone
-       ou simplesmente remove a prévia.
+       Se houver câmera,
+       volta para ela.
     */
 
-    const stream =
-        getOutgoingStream();
-
-
     showLocalStream(
-        stream
+        getOutgoingStream()
     );
 
+
+    /*
+       Atualiza todos.
+    */
 
     renegotiateAll();
 
@@ -2201,14 +2613,14 @@ function stopScreenShare(
 }
 
 
-/* ---------------------------------------------------------
+/* =====================================================
    CHAT
-   --------------------------------------------------------- */
+===================================================== */
 
 $("chatForm").onsubmit =
-    e => {
+    event => {
 
-        e.preventDefault();
+        event.preventDefault();
 
 
         const text =
@@ -2217,7 +2629,9 @@ $("chatForm").onsubmit =
                 .trim();
 
 
-        if (!text) return;
+        if (!text) {
+            return;
+        }
 
 
         const data = {
@@ -2228,29 +2642,36 @@ $("chatForm").onsubmit =
 
 
         /*
-           Host pode transmitir
-           diretamente.
+           HOST
         */
 
         if (isHost) {
-
-            broadcast(data);
 
             addMessage(
                 myName,
                 text
             );
 
-        } else {
 
-            /*
-               Cliente manda ao host.
-            */
+            broadcast(
+                data
+            );
 
-            if (!sendToHost(data)) {
+        }
+
+
+        /*
+           CLIENTE
+        */
+
+        else {
+
+            if (
+                !sendToHost(data)
+            ) {
 
                 addSystemMessage(
-                    "Não conectado ao host."
+                    "Você ainda não está conectado à sala."
                 );
 
                 return;
@@ -2258,13 +2679,14 @@ $("chatForm").onsubmit =
         }
 
 
-        $("chatInput").value = "";
+        $("chatInput").value =
+            "";
     };
 
 
-/* ---------------------------------------------------------
+/* =====================================================
    SAIR
-   --------------------------------------------------------- */
+===================================================== */
 
 $("leaveBtn").onclick =
     () => {
@@ -2288,42 +2710,56 @@ $("leaveBtn").onclick =
 
 
         /*
-           Para streams.
+           Para microfone.
         */
 
         if (micStream) {
 
-            micStream
-                .getTracks()
-                .forEach(t => {
-                    try {
-                        t.stop();
-                    } catch {}
-                });
+            for (
+                const track
+                of micStream.getTracks()
+            ) {
+
+                try {
+                    track.stop();
+                } catch {}
+            }
         }
 
+
+        /*
+           Para câmera.
+        */
 
         if (cameraStream) {
 
-            cameraStream
-                .getTracks()
-                .forEach(t => {
-                    try {
-                        t.stop();
-                    } catch {}
-                });
+            for (
+                const track
+                of cameraStream.getTracks()
+            ) {
+
+                try {
+                    track.stop();
+                } catch {}
+            }
         }
 
 
+        /*
+           Para tela.
+        */
+
         if (screenStream) {
 
-            screenStream
-                .getTracks()
-                .forEach(t => {
-                    try {
-                        t.stop();
-                    } catch {}
-                });
+            for (
+                const track
+                of screenStream.getTracks()
+            ) {
+
+                try {
+                    track.stop();
+                } catch {}
+            }
         }
 
 
@@ -2332,7 +2768,11 @@ $("leaveBtn").onclick =
         */
 
         try {
-            if (peer) peer.destroy();
+
+            if (peer) {
+                peer.destroy();
+            }
+
         } catch {}
 
 
@@ -2340,28 +2780,24 @@ $("leaveBtn").onclick =
     };
 
 
-/* ---------------------------------------------------------
-   SEGURANÇA / DEBUG
-   --------------------------------------------------------- */
-
-window.addEventListener(
-    "unhandledrejection",
-    event => {
-
-        console.error(
-            "Promise rejeitada:",
-            event.reason
-        );
-    }
-);
-
+/* =====================================================
+   DEBUG
+===================================================== */
 
 console.log(
-    "%cDZcord carregado!",
+    "%cDZcord iniciado!",
     "font-size:20px;font-weight:bold"
+);
+
+console.log(
+    "PeerJS:",
+    typeof Peer !== "undefined"
+        ? "OK"
+        : "ERRO"
 );
 
 </script>
 
 </body>
 </html>
+```
