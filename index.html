@@ -1,3088 +1,995 @@
-
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>DZcord</title>
-
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-
 <style>
-* {
-    box-sizing: border-box;
+:root{
+  --bg-void:#0A0C11;
+  --bg-rail:#0F1117;
+  --bg-panel:#151824;
+  --bg-elevated:#1C2030;
+  --bg-hover:#252A3C;
+  --line:#242838;
+  --text-hi:#EDEEF4;
+  --text-mid:#9AA0BE;
+  --text-low:#5B6284;
+  --brand:#7C6CFF;
+  --brand-dim:#5b4fd6;
+  --live:#FF5C7A;
+  --signal:#2FE0C4;
+  --online:#3ECF8E;
+  --idle:#F5B942;
+  --dnd:#F5484B;
+  --offline:#4B5163;
+  --r-sm:6px;
+  --r-md:10px;
+  --r-lg:16px;
+  --r-xl:22px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;margin:0;background:var(--bg-void);color:var(--text-hi);overflow:hidden;-webkit-tap-highlight-color:transparent;}
+button{font-family:inherit;cursor:pointer;}
+input,textarea,select{font-family:inherit;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:#2A2F42;border-radius:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+/* ---------- LOGIN ---------- */
+#loginOverlay{
+  position:fixed;inset:0;background:radial-gradient(circle at 30% 20%, #1a1030 0%, #0A0C11 60%);
+  display:flex;align-items:center;justify-content:center;z-index:500;
+}
+.login-card{width:360px;max-width:90vw;background:var(--bg-panel);border:1px solid var(--line);border-radius:var(--r-xl);padding:36px 30px;text-align:center;}
+.login-mark{font-size:15px;letter-spacing:.4px;color:var(--text-low);margin-bottom:6px;}
+.login-title{font-size:30px;font-weight:750;letter-spacing:-0.7px;margin:0 0 4px;
+  background:linear-gradient(120deg,#9C8CFF,#2FE0C4);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.login-sub{color:var(--text-mid);font-size:13.5px;margin:0 0 22px;line-height:1.5;}
+.login-card input{width:100%;background:var(--bg-elevated);border:1px solid var(--line);color:var(--text-hi);
+  border-radius:var(--r-md);padding:12px 14px;font-size:14.5px;outline:none;margin-bottom:14px;}
+.login-card input:focus{border-color:var(--brand);}
+.login-card button.primary{width:100%;padding:12px;border:none;border-radius:var(--r-md);background:var(--brand);
+  color:#fff;font-weight:650;font-size:14.5px;}
+.login-card button.primary:active{background:var(--brand-dim);}
+.login-note{margin-top:16px;font-size:11.5px;color:var(--text-low);line-height:1.5;}
+
+/* ---------- APP SHELL ---------- */
+#app{display:none;height:100%;grid-template-columns:72px 232px 1fr 220px;grid-template-rows:1fr;}
+#app.on{display:grid;}
+@media (max-width:900px){
+  #app{grid-template-columns:64px 0 1fr 0;}
 }
 
-body {
-    margin: 0;
-    background: #111318;
-    color: white;
-    font-family: Arial, sans-serif;
-    overflow: hidden;
+.rail{background:var(--bg-rail);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:10px;overflow-y:auto;border-right:1px solid var(--line);}
+.rail-item{width:46px;height:46px;border-radius:16px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:15px;color:var(--text-mid);border:none;transition:border-radius .15s,color .15s;position:relative;flex:none;}
+.rail-item:hover{border-radius:13px;color:var(--text-hi);}
+.rail-item.active{border-radius:13px;color:#fff;box-shadow:0 0 0 2px var(--brand) inset;}
+.rail-item.active::before{content:"";position:absolute;left:-12px;width:4px;height:22px;border-radius:3px;background:var(--brand);}
+.rail-sep{width:28px;height:2px;background:var(--line);border-radius:2px;margin:2px 0;flex:none;}
+.rail-item.ghost{background:transparent;color:var(--signal);font-size:20px;font-weight:400;border:1.5px dashed var(--line);}
+.rail-item.ghost:hover{color:#fff;border-color:var(--signal);}
+
+.sidebar{background:var(--bg-panel);display:flex;flex-direction:column;border-right:1px solid var(--line);min-width:0;}
+.sidebar-head{padding:16px 16px 12px;border-bottom:1px solid var(--line);}
+.sidebar-head h2{margin:0;font-size:15.5px;font-weight:700;letter-spacing:-0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sidebar-head .code{font-size:11px;color:var(--text-low);margin-top:2px;cursor:pointer;}
+.channels{flex:1;overflow-y:auto;padding:12px 8px;}
+.chan-group{margin-bottom:14px;}
+.chan-group-label{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;color:var(--text-low);
+  font-size:11.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;}
+.chan-group-label button{background:none;border:none;color:var(--text-low);font-size:15px;line-height:1;padding:2px 4px;border-radius:4px;}
+.chan-group-label button:hover{background:var(--bg-hover);color:var(--text-hi);}
+.chan-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;color:var(--text-mid);font-size:14px;
+  cursor:pointer;margin-bottom:1px;position:relative;}
+.chan-item:hover{background:var(--bg-hover);color:var(--text-hi);}
+.chan-item.active{background:var(--bg-elevated);color:#fff;}
+.chan-item .icon{opacity:.75;font-size:13px;width:16px;text-align:center;}
+.chan-item .del{margin-left:auto;opacity:0;background:none;border:none;color:var(--text-low);font-size:13px;}
+.chan-item:hover .del{opacity:1;}
+.chan-voice-users{margin:0 0 6px 26px;display:flex;flex-direction:column;gap:2px;}
+.chan-voice-users .vu{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-mid);padding:2px 0;}
+.vu .dot{width:6px;height:6px;border-radius:50%;background:var(--offline);flex:none;}
+.vu .mini-tags{display:flex;gap:3px;margin-left:auto;font-size:11px;}
+
+.userbar{border-top:1px solid var(--line);padding:8px 10px;display:flex;align-items:center;gap:8px;background:var(--bg-elevated);}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#fff;flex:none;position:relative;}
+.avatar .status-dot{position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;border-radius:50%;border:2.5px solid var(--bg-elevated);}
+.userbar-info{min-width:0;flex:1;}
+.userbar-info .name{font-size:13px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.userbar-info .stat{font-size:11px;color:var(--text-low);}
+.userbar-controls{display:flex;gap:2px;}
+.ib{width:30px;height:30px;border-radius:8px;background:transparent;border:none;color:var(--text-mid);font-size:14px;display:flex;align-items:center;justify-content:center;}
+.ib:hover{background:var(--bg-hover);color:var(--text-hi);}
+.ib.off{color:var(--dnd);}
+
+/* ---------- MAIN ---------- */
+.main{display:flex;flex-direction:column;min-width:0;background:var(--bg-void);}
+.main-header{height:52px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 16px;gap:8px;flex:none;}
+.main-header .htitle{font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px;}
+.main-header .htitle .icon{color:var(--text-low);}
+.hamburger{display:none;background:none;border:none;color:var(--text-mid);font-size:20px;margin-right:4px;}
+@media (max-width:900px){.hamburger{display:block;}}
+.header-spacer{flex:1;}
+.header-btn{background:var(--bg-elevated);border:1px solid var(--line);color:var(--text-mid);border-radius:8px;padding:6px 10px;font-size:12.5px;display:flex;align-items:center;gap:6px;}
+.header-btn:hover{color:var(--text-hi);border-color:var(--brand);}
+
+.chat-scroll{flex:1;overflow-y:auto;padding:14px 18px 6px;}
+.msg{display:flex;gap:12px;padding:6px 4px;border-radius:8px;}
+.msg:hover{background:#12141d;}
+.msg .avatar{margin-top:2px;}
+.msg-body{min-width:0;}
+.msg-head{display:flex;align-items:baseline;gap:8px;}
+.msg-head .u{font-weight:650;font-size:14px;}
+.msg-head .t{font-size:11px;color:var(--text-low);}
+.msg-text{font-size:14.5px;color:#DEE0EA;line-height:1.45;white-space:pre-wrap;word-break:break-word;}
+.sys-msg{text-align:center;color:var(--text-low);font-size:12px;margin:10px 0;}
+.empty-chat{margin:auto;text-align:center;color:var(--text-low);padding:40px;}
+.empty-chat .big{font-size:34px;margin-bottom:8px;}
+
+.composer{padding:12px 18px 16px;flex:none;}
+.composer-inner{background:var(--bg-elevated);border:1px solid var(--line);border-radius:var(--r-lg);display:flex;align-items:flex-end;padding:8px 10px;gap:8px;}
+.composer textarea{flex:1;background:none;border:none;resize:none;color:var(--text-hi);font-size:14.5px;outline:none;max-height:140px;padding:6px 4px;line-height:1.4;}
+.composer textarea::placeholder{color:var(--text-low);}
+.emoji-btn{background:none;border:none;font-size:19px;color:var(--text-mid);padding:4px 6px;}
+.send-btn{background:var(--brand);border:none;color:#fff;border-radius:8px;padding:8px 14px;font-weight:650;font-size:13px;flex:none;}
+.emoji-pop{position:absolute;bottom:64px;right:20px;background:var(--bg-elevated);border:1px solid var(--line);border-radius:var(--r-md);
+  padding:8px;display:none;grid-template-columns:repeat(8,1fr);gap:2px;z-index:50;}
+.emoji-pop.on{display:grid;}
+.emoji-pop button{background:none;border:none;font-size:19px;padding:5px;border-radius:6px;}
+.emoji-pop button:hover{background:var(--bg-hover);}
+
+/* ---------- STAGE (voice / screenshare) ---------- */
+.stage-wrap{flex:1;display:flex;flex-direction:column;background:#07080c;position:relative;min-height:0;}
+.stage-top{flex:1;display:flex;align-items:center;justify-content:center;position:relative;min-height:0;padding:14px;gap:14px;flex-wrap:wrap;overflow:auto;}
+.stage-empty{color:var(--text-low);text-align:center;}
+.stage-empty .big{font-size:40px;margin-bottom:10px;}
+.screen-tile{position:relative;background:#000;border-radius:var(--r-lg);overflow:hidden;max-width:100%;max-height:100%;
+  box-shadow:0 0 0 1px var(--line);}
+.screen-tile video{display:block;max-width:100%;max-height:70vh;width:auto;height:auto;}
+.screen-tile .tag{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);padding:4px 10px;
+  border-radius:20px;font-size:12px;font-weight:650;display:flex;align-items:center;gap:6px;}
+.screen-tile .tag .live-dot{width:7px;height:7px;border-radius:50%;background:var(--live);animation:pulse 1.4s infinite;}
+@keyframes pulse{0%{opacity:1;}50%{opacity:.35;}100%{opacity:1;}}
+.stream-picker{display:flex;gap:6px;padding:8px 14px;flex-wrap:wrap;border-top:1px solid var(--line);}
+.stream-picker button{background:var(--bg-elevated);border:1px solid var(--line);color:var(--text-mid);border-radius:8px;padding:5px 10px;font-size:12px;}
+.stream-picker button.active{border-color:var(--live);color:#fff;}
+
+.cam-row{display:flex;gap:10px;flex-wrap:wrap;padding:10px 14px;flex:none;}
+.cam-tile{width:150px;height:100px;background:#000;border-radius:var(--r-md);overflow:hidden;position:relative;box-shadow:0 0 0 1px var(--line);}
+.cam-tile video{width:100%;height:100%;object-fit:cover;}
+.cam-tile .name{position:absolute;bottom:4px;left:6px;font-size:11px;background:rgba(0,0,0,.5);padding:2px 6px;border-radius:6px;}
+
+.voice-bar{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border-top:1px solid var(--line);flex:none;background:var(--bg-panel);}
+.voice-bar button{width:44px;height:44px;border-radius:50%;background:var(--bg-elevated);border:1px solid var(--line);color:var(--text-hi);font-size:17px;display:flex;align-items:center;justify-content:center;}
+.voice-bar button.off{background:var(--dnd);color:#fff;border-color:var(--dnd);}
+.voice-bar button.live{background:var(--live);color:#fff;border-color:var(--live);}
+.voice-bar button.leave{background:var(--dnd);color:#fff;}
+
+/* ---------- MEMBERS ---------- */
+.members{background:var(--bg-panel);border-left:1px solid var(--line);overflow-y:auto;padding:14px 10px;}
+@media (max-width:1100px){.members{display:none;}}
+.members h4{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--text-low);margin:6px 8px 8px;}
+.member{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;}
+.member:hover{background:var(--bg-hover);}
+.member .role-badge{font-size:10px;}
+.member .name{font-size:13.5px;font-weight:600;}
+.member .sub{font-size:11px;color:var(--text-low);}
+
+/* ---------- MODAL ---------- */
+.modal-back{position:fixed;inset:0;background:rgba(5,6,10,.65);display:none;align-items:center;justify-content:center;z-index:400;}
+.modal-back.on{display:flex;}
+.modal{width:400px;max-width:90vw;background:var(--bg-panel);border:1px solid var(--line);border-radius:var(--r-xl);padding:26px;}
+.modal h3{margin:0 0 6px;font-size:19px;font-weight:700;}
+.modal p.hint{margin:0 0 16px;color:var(--text-mid);font-size:13px;line-height:1.5;}
+.modal input,.modal select{width:100%;background:var(--bg-elevated);border:1px solid var(--line);color:var(--text-hi);
+  border-radius:var(--r-md);padding:11px 12px;font-size:14px;outline:none;margin-bottom:12px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;}
+.modal-actions button{padding:9px 16px;border-radius:8px;border:none;font-weight:600;font-size:13.5px;}
+.modal-actions .cancel{background:transparent;color:var(--text-mid);}
+.modal-actions .cancel:hover{color:var(--text-hi);}
+.modal-actions .go{background:var(--brand);color:#fff;}
+.invite-code{background:var(--bg-elevated);border:1px dashed var(--line);border-radius:var(--r-md);padding:14px;text-align:center;
+  font-size:22px;letter-spacing:3px;font-weight:750;color:var(--signal);margin-bottom:14px;user-select:all;}
+
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--bg-elevated);border:1px solid var(--line);
+  padding:10px 18px;border-radius:10px;font-size:13px;z-index:600;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transition:opacity .2s;pointer-events:none;}
+.toast.on{opacity:1;}
+
+.mobile-scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:90;display:none;}
+@media (max-width:900px){
+  .sidebar{position:fixed;top:0;left:72px;bottom:0;width:260px;z-index:100;transform:translateX(-340px);transition:transform .2s;}
+  .sidebar.open{transform:translateX(0);}
+  .mobile-scrim.on{display:block;}
 }
-
-button,
-input {
-    font-family: inherit;
-}
-
-#login {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #111318;
-}
-
-.login-box {
-    width: 380px;
-    max-width: 90%;
-    padding: 30px;
-    border-radius: 15px;
-    background: #191c22;
-    box-shadow: 0 10px 40px #0008;
-}
-
-.login-box h1 {
-    text-align: center;
-    margin-top: 0;
-}
-
-.login-box input {
-    width: 100%;
-    margin-top: 10px;
-    padding: 13px;
-    border: 0;
-    outline: none;
-    border-radius: 8px;
-    background: #282c35;
-    color: white;
-}
-
-.login-box button {
-    width: 100%;
-    margin-top: 15px;
-    padding: 13px;
-    border: 0;
-    border-radius: 8px;
-    background: #5865f2;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-#loginStatus {
-    text-align: center;
-    color: #888;
-    margin-top: 12px;
-    font-size: 13px;
-}
-
-#app {
-    display: none;
-    width: 100vw;
-    height: 100vh;
-}
-
-#sidebar {
-    width: 240px;
-    background: #191b20;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-}
-
-.server-name {
-    font-size: 20px;
-    font-weight: bold;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #30333b;
-}
-
-.members-title {
-    color: #777;
-    font-size: 12px;
-    margin-top: 15px;
-}
-
-#users {
-    margin-top: 10px;
-    overflow-y: auto;
-    flex: 1;
-}
-
-.user {
-    padding: 8px;
-    color: #bbb;
-    border-radius: 6px;
-    margin-bottom: 3px;
-}
-
-.user.me {
-    color: white;
-    background: #2b2f38;
-}
-
-#main {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-#topbar {
-    height: 55px;
-    background: #1d2026;
-    display: flex;
-    align-items: center;
-    padding: 0 15px;
-    gap: 15px;
-}
-
-#roomInfo {
-    color: #aaa;
-    font-size: 14px;
-}
-
-#status {
-    position: fixed;
-    right: 15px;
-    top: 70px;
-    z-index: 100;
-    padding: 8px 12px;
-    border-radius: 8px;
-    background: #000b;
-    color: #aaa;
-    font-size: 12px;
-}
-
-#videos {
-    flex: 1;
-    padding: 15px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 15px;
-    overflow-y: auto;
-    align-content: start;
-}
-
-.video-card {
-    position: relative;
-    min-height: 220px;
-    background: #08090b;
-    border: 1px solid #292c33;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.video-card video {
-    width: 100%;
-    height: 100%;
-    min-height: 220px;
-    display: block;
-    object-fit: contain;
-    background: #050505;
-}
-
-.video-name {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-    padding: 6px 9px;
-    border-radius: 6px;
-    background: #000b;
-    font-size: 13px;
-}
-
-.live-badge {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    padding: 5px 8px;
-    border-radius: 6px;
-    background: #ed4245;
-    font-size: 11px;
-    font-weight: bold;
-}
-
-#chat {
-    height: 220px;
-    background: #15171c;
-    border-top: 1px solid #292c33;
-    display: flex;
-    flex-direction: column;
-}
-
-#messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px 15px;
-}
-
-.message {
-    margin-bottom: 7px;
-    word-break: break-word;
-}
-
-.message-name {
-    color: #7289da;
-    font-weight: bold;
-}
-
-.system {
-    color: #888;
-    font-style: italic;
-}
-
-#chatForm {
-    display: flex;
-    gap: 8px;
-    padding: 10px;
-}
-
-#chatInput {
-    flex: 1;
-    padding: 12px;
-    border: 0;
-    outline: none;
-    border-radius: 7px;
-    background: #292c33;
-    color: white;
-}
-
-#chatForm button {
-    padding: 0 18px;
-    border: 0;
-    border-radius: 7px;
-    background: #5865f2;
-    color: white;
-    cursor: pointer;
-}
-
-#controls {
-    height: 70px;
-    background: #111318;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.control {
-    width: 48px;
-    height: 48px;
-    border: 0;
-    border-radius: 50%;
-    background: #292c33;
-    color: white;
-    cursor: pointer;
-    font-size: 19px;
-}
-
-.control.active {
-    background: #5865f2;
-}
-
-.control.danger {
-    background: #ed4245;
-}
-
-@media (max-width: 700px) {
-    #sidebar {
-        display: none;
-    }
-
-    #videos {
-        grid-template-columns: 1fr;
-    }
-
-    #chat {
-        height: 180px;
-    }
-}
+.conn-badge{position:fixed;top:10px;right:14px;background:var(--bg-elevated);border:1px solid var(--line);border-radius:20px;
+  padding:5px 12px;font-size:11.5px;color:var(--text-mid);z-index:300;display:flex;align-items:center;gap:6px;}
+.conn-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--online);}
 </style>
 </head>
-
 <body>
 
-<!-- =====================================================
-     LOGIN
-===================================================== -->
+<!-- LOGIN -->
+<div id="loginOverlay">
+  <div class="login-card">
+    <div class="login-mark">📡 DZCORD</div>
+    <h1 class="login-title"></h1>
+    <p class="login-sub">Escolha um nome para poder entrar no DzCord.</p>
+    <input id="nameInput" maxlength="20" placeholder="Seu nome" autocomplete="off" />
+    <button class="primary" id="loginBtn">Entrar</button>
+    <div class="login-note"></div>
+  </div>
+</div>
 
-<div id="login">
+<div class="conn-badge" id="connBadge" style="display:none;"><span class="dot"></span><span id="connText">conectando…</span></div>
+<div class="mobile-scrim" id="scrim"></div>
 
-    <div class="login-box">
+<!-- APP -->
+<div id="app">
+  <div class="rail" id="serverRail"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <h2 id="serverName">—</h2>
+      <div class="code" id="serverCodeShow" title="Clique para copiar o código de convite">código: —</div>
+    </div>
+    <div class="channels" id="channelList"></div>
+    <div class="userbar">
+      <div class="avatar" id="myAvatar"></div>
+      <div class="userbar-info">
+        <div class="name" id="myName">—</div>
+        <div class="stat" id="myStat">online</div>
+      </div>
+      <div class="userbar-controls">
+        <button class="ib" id="micToggleBar" title="Microfone">🎤</button>
+        <button class="ib" id="settingsBtn" title="Status">⚙️</button>
+      </div>
+    </div>
+  </div>
 
-        <h1>🌐 DZcord</h1>
-
-        <input
-            id="nameInput"
-            type="text"
-            placeholder="Seu nome"
-            maxlength="30"
-        >
-
-        <input
-            id="roomInput"
-            type="text"
-            placeholder="Código da sala"
-            maxlength="50"
-        >
-
-        <button id="joinBtn">
-            Entrar na sala
-        </button>
-
-        <div id="loginStatus"></div>
-
+  <div class="main">
+    <div class="main-header">
+      <button class="hamburger" id="hamburger">☰</button>
+      <div class="htitle"><span class="icon" id="headerIcon">#</span><span id="headerTitle">selecione um canal</span></div>
+      <div class="header-spacer"></div>
+      <button class="header-btn" id="inviteBtn" style="display:none;">🔗 Convidar</button>
     </div>
 
+    <!-- TEXT VIEW -->
+    <div id="textView" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+      <div class="chat-scroll" id="chatScroll"><div class="empty-chat"><div class="big">💬</div>Crie ou entre em um servidor para começar.</div></div>
+      <div class="composer" style="position:relative;">
+        <div class="emoji-pop" id="emojiPop"></div>
+        <div class="composer-inner">
+          <button class="emoji-btn" id="emojiBtn">🙂</button>
+          <textarea id="msgInput" rows="1" placeholder="Enviar mensagem…" disabled></textarea>
+          <button class="send-btn" id="sendBtn">Enviar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VOICE VIEW -->
+    <div id="voiceView" style="display:none;flex-direction:column;flex:1;min-height:0;">
+      <div class="stage-wrap">
+        <div class="stream-picker" id="streamPicker" style="display:none;"></div>
+        <div class="stage-top" id="stageTop">
+          <div class="stage-empty"><div class="big">🎧</div>Ninguém está transmitindo a tela agora.</div>
+        </div>
+        <div class="cam-row" id="camRow"></div>
+      </div>
+      <div class="voice-bar">
+        <button id="vMic" title="Microfone">🎤</button>
+        <button id="vCam" title="Câmera">📹</button>
+        <button id="vScreen" title="Transmitir tela">🖥️</button>
+        <button class="leave" id="vLeave" title="Sair">📞</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="members" id="membersPanel"></div>
 </div>
 
-
-<!-- =====================================================
-     APP
-===================================================== -->
-
-<div id="app">
-
-    <aside id="sidebar">
-
-        <div class="server-name">
-            🟣 DZcord
-        </div>
-
-        <div class="members-title">
-            PARTICIPANTES
-        </div>
-
-        <div id="users"></div>
-
-    </aside>
-
-
-    <main id="main">
-
-        <div id="topbar">
-
-            <strong>💬 Sala</strong>
-
-            <span id="roomInfo"></span>
-
-        </div>
-
-
-        <div id="status">
-            Desconectado
-        </div>
-
-
-        <section id="videos"></section>
-
-
-        <section id="chat">
-
-            <div id="messages"></div>
-
-            <form id="chatForm">
-
-                <input
-                    id="chatInput"
-                    autocomplete="off"
-                    placeholder="Digite uma mensagem..."
-                >
-
-                <button type="submit">
-                    Enviar
-                </button>
-
-            </form>
-
-        </section>
-
-
-        <div id="controls">
-
-            <button
-                class="control"
-                id="micBtn"
-                title="Microfone">
-                🎤
-            </button>
-
-            <button
-                class="control"
-                id="cameraBtn"
-                title="Câmera">
-                📷
-            </button>
-
-            <button
-                class="control"
-                id="screenBtn"
-                title="Compartilhar tela">
-                🖥️
-            </button>
-
-            <button
-                class="control danger"
-                id="leaveBtn"
-                title="Sair">
-                ☎
-            </button>
-
-        </div>
-
-    </main>
-
+<div class="modal-back" id="modalBack">
+  <div class="modal" id="modalBody"></div>
 </div>
+<div class="toast" id="toast"></div>
 
+<script type="module">
+import { joinRoom, selfId } from 'https://esm.run/trystero';
 
-<script>
-/* =====================================================
-   DZCORD
-===================================================== */
+/* ======================= UTILS ======================= */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const uid = ()=> Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+const genCode = ()=>{
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s=''; for(let i=0;i<6;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+  return s;
+};
+function hashColor(str){
+  let h=0; for(let i=0;i<str.length;i++) h = str.charCodeAt(i) + ((h<<5)-h);
+  const palette=['#7C6CFF','#2FE0C4','#FF5C7A','#F5B942','#5B8CFF','#E667C0','#4ADE80','#FF9E5E'];
+  return palette[Math.abs(h)%palette.length];
+}
+function initials(name){
+  return (name||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('')||'?';
+}
+function fmtTime(ts){
+  const d=new Date(ts);
+  return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+function store(key,val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+function load(key,fallback){ try{ const v=localStorage.getItem(key); return v?JSON.parse(v):fallback; }catch(e){ return fallback; } }
+function toast(msg){
+  const t=$('#toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2600);
+}
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+const EMOJIS = ['😀','😂','😍','😎','🤔','😢','😡','👍','👎','🙏','🎉','🔥','💯','❤️','😭','🤯','👀','✅','❌','🚀','🎮','🖥️','🎤','📹','😴','🤝','👋','🥳'];
 
-const $ = id => document.getElementById(id);
+/* ======================= PROFILE (per-browser identity) ======================= */
+let me = load('dz.profile', null);
 
+/* ======================= LOCAL "MY SERVERS" BOOKMARKS ======================= */
+let myServers = load('dz.myservers', []); // [{id,name,icon}]
 
-const PEER_CONFIG = {
-    debug: 2,
-
-    host: "0.peerjs.com",
-    port: 443,
-    path: "/",
-    secure: true,
-
-    config: {
-        iceServers: [
-            {
-                urls: "stun:stun.l.google.com:19302"
-            },
-            {
-                urls: "stun:stun1.l.google.com:19302"
-            },
-            {
-                urls: "stun:stun2.l.google.com:19302"
-            }
-        ]
-    }
+/* ======================= RUNTIME STATE ======================= */
+const S = {
+  serverId: null,
+  server: null,           // {id,name,channels:[{id,name,type}],roles:{}} - synced via P2P
+  channelId: null,        // current selected text/voice channel id
+  room: null,             // trystero room
+  actions: {},            // {send*, on*}
+  roster: {},             // peerId -> {userId,username,color,status}
+  presence: {},           // peerId -> {channelId, mic, cam, screen}
+  messages: {},           // channelId -> [ {id,userId,username,color,text,time} ]
+  streams: {},            // peerId -> {mic:MediaStream, cam:MediaStream, screen:MediaStream}
+  local: { mic:null, cam:null, screen:null },
+  micOn:false, camOn:false, screenOn:false,
+  inVoiceChannel:null,
+  viewingPeer:null,       // whose screen is on stage ('me' or peerId)
+  isAdmin:true,
 };
 
-/* =====================================================
-   ESTADO
-===================================================== */
+const RTC_CONFIG = {
+  iceServers:[
+    {urls:'stun:stun.l.google.com:19302'},
+    {urls:'stun:stun1.l.google.com:19302'},
+    {urls:'turn:openrelay.metered.ca:80', username:'openrelayproject', credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:443', username:'openrelayproject', credential:'openrelayproject'},
+    {urls:'turn:openrelay.metered.ca:443?transport=tcp', username:'openrelayproject', credential:'openrelayproject'},
+  ]
+};
 
-let peer = null;
+/* ======================= LOGIN ======================= */
+function showApp(){
+  $('#loginOverlay').style.display='none';
+  $('#app').classList.add('on');
+  $('#myName').textContent = me.username;
+  $('#myAvatar').style.background = me.color;
+  $('#myAvatar').textContent = initials(me.username);
+  renderServerRail();
+  if(myServers.length){ enterServer(myServers[0].id); }
+}
+$('#loginBtn').onclick = ()=>{
+  const v = $('#nameInput').value.trim();
+  if(!v){ $('#nameInput').focus(); return; }
+  me = { userId: uid(), username:v.slice(0,20), color:hashColor(v+Date.now()), status:'online' };
+  store('dz.profile', me);
+  showApp();
+};
+$('#nameInput').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#loginBtn').click(); });
+if(me){ $('#nameInput').value = me.username; showApp(); }
 
-let myPeerId = null;
-let myName = "";
-let room = "";
-
-let isHost = false;
-let hostId = "";
-
-let hostConnection = null;
-
-
-/*
-    Todos os participantes conhecidos.
-
-    ID -> nome
-*/
-const participants = new Map();
-
-
-/*
-    Conexões de dados.
-
-    ID -> DataConnection
-*/
-const dataConnections = new Map();
-
-
-/*
-    Chamadas WebRTC.
-
-    ID -> MediaConnection
-*/
-const mediaCalls = new Map();
-
-
-/* =====================================================
-   STREAMS
-===================================================== */
-
-let micStream = null;
-let cameraStream = null;
-let screenStream = null;
-
-let micEnabled = false;
-let cameraEnabled = false;
-let screenEnabled = false;
-
-
-/* =====================================================
-   UTILIDADES
-===================================================== */
-
-function safeRoom(name) {
-
-    return name
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9_-]/g, "-");
+/* ======================= SERVER RAIL ======================= */
+function renderServerRail(){
+  const rail = $('#serverRail'); rail.innerHTML='';
+  myServers.forEach(sv=>{
+    const b=document.createElement('button');
+    b.className='rail-item'+(sv.id===S.serverId?' active':'');
+    b.textContent = initials(sv.name);
+    b.title = sv.name;
+    b.onclick=()=>enterServer(sv.id);
+    rail.appendChild(b);
+  });
+  if(myServers.length) rail.appendChild(Object.assign(document.createElement('div'),{className:'rail-sep'}));
+  const add=document.createElement('button');
+  add.className='rail-item ghost'; add.textContent='+'; add.title='Criar servidor';
+  add.onclick=openCreateServerModal;
+  rail.appendChild(add);
+  const join=document.createElement('button');
+  join.className='rail-item ghost'; join.textContent='↵'; join.title='Entrar com código';
+  join.onclick=openJoinServerModal;
+  rail.appendChild(join);
 }
 
+/* ======================= MODALS ======================= */
+function openModal(html){ $('#modalBody').innerHTML=html; $('#modalBack').classList.add('on'); }
+function closeModal(){ $('#modalBack').classList.remove('on'); }
+$('#modalBack').addEventListener('click',e=>{ if(e.target.id==='modalBack') closeModal(); });
 
-function getHostId(name) {
-
-    return "dzcord-host-" + safeRoom(name);
+function openCreateServerModal(){
+  openModal(`
+    <h3>Criar servidor</h3>
+    <p class="hint">Isso cria uma nova "sala" DZcord. Você recebe um código pra compartilhar com quem quiser entrar, de qualquer lugar.</p>
+    <input id="mSvName" placeholder="Nome do servidor" maxlength="30" />
+    <div class="modal-actions">
+      <button class="cancel" onclick="window.__dz.closeModal()">Cancelar</button>
+      <button class="go" onclick="window.__dz.doCreateServer()">Criar</button>
+    </div>
+  `);
+  setTimeout(()=>$('#mSvName')?.focus(),50);
+}
+function openJoinServerModal(){
+  openModal(`
+    <h3>Entrar com código</h3>
+    <p class="hint">Peça o código de 6 caracteres pra quem já está no servidor.</p>
+    <input id="mSvCode" placeholder="EX: 7K9QRT" maxlength="10" style="text-transform:uppercase;letter-spacing:2px;" />
+    <div class="modal-actions">
+      <button class="cancel" onclick="window.__dz.closeModal()">Cancelar</button>
+      <button class="go" onclick="window.__dz.doJoinServer()">Entrar</button>
+    </div>
+  `);
+  setTimeout(()=>$('#mSvCode')?.focus(),50);
+}
+function openInviteModal(){
+  openModal(`
+    <h3>Convidar pessoas</h3>
+    <p class="hint">Envie este código pra quem quiser entrar no servidor "${escapeHtml(S.server.name)}" — de qualquer PC, em qualquer lugar.</p>
+    <div class="invite-code" id="inviteCodeText">${S.serverId}</div>
+    <div class="modal-actions">
+      <button class="cancel" onclick="window.__dz.closeModal()">Fechar</button>
+      <button class="go" onclick="window.__dz.copyInvite()">Copiar código</button>
+    </div>
+  `);
+}
+function openCreateChannelModal(type){
+  openModal(`
+    <h3>Criar canal de ${type==='voice'?'voz':'texto'}</h3>
+    <input id="mChName" placeholder="nome-do-canal" maxlength="24" />
+    <div class="modal-actions">
+      <button class="cancel" onclick="window.__dz.closeModal()">Cancelar</button>
+      <button class="go" onclick="window.__dz.doCreateChannel('${type}')">Criar</button>
+    </div>
+  `);
+  setTimeout(()=>$('#mChName')?.focus(),50);
 }
 
+window.__dz = {
+  closeModal,
+  doCreateServer(){
+    const name = $('#mSvName').value.trim() || 'Servidor sem nome';
+    const id = genCode();
+    myServers.push({id,name}); store('dz.myservers',myServers);
+    const server = {
+      id, name,
+      channels: [
+        {id:uid(),name:'geral',type:'text'},
+        {id:uid(),name:'anúncios',type:'text'},
+        {id:uid(),name:'Geral',type:'voice'},
+      ]
+    };
+    store('dz.server.'+id, server);
+    closeModal(); renderServerRail(); enterServer(id);
+  },
+  doJoinServer(){
+    const code = $('#mSvCode').value.trim().toUpperCase();
+    if(!code) return;
+    if(!myServers.find(s=>s.id===code)){
+      myServers.push({id:code,name:'Sincronizando…'}); store('dz.myservers',myServers);
+    }
+    closeModal(); renderServerRail(); enterServer(code);
+  },
+  copyInvite(){
+    navigator.clipboard?.writeText(S.serverId).then(()=>toast('Código copiado: '+S.serverId));
+  },
+  doCreateChannel(type){
+    const name = $('#mChName').value.trim();
+    if(!name) return;
+    S.server.channels.push({id:uid(), name, type});
+    persistAndBroadcastMeta();
+    closeModal(); renderChannelList();
+  },
+  deleteChannel(chId){
+    if(!confirm('Excluir este canal para todo mundo?')) return;
+    S.server.channels = S.server.channels.filter(c=>c.id!==chId);
+    persistAndBroadcastMeta();
+    if(S.channelId===chId) S.channelId=null;
+    renderChannelList();
+  }
+};
 
-function setStatus(text) {
+/* ======================= ENTER / LEAVE SERVER (Trystero room) ======================= */
+function enterServer(serverId){
+  if(S.room && S.serverId===serverId) return;
+  if(S.room) leaveServerRoom();
 
-    $("status").textContent = text;
+  S.serverId = serverId;
+  S.server = load('dz.server.'+serverId, {id:serverId, name:'Sincronizando…', channels:[]});
+  S.channelId = null; S.roster={}; S.presence={}; S.messages={}; S.streams={};
+  renderServerRail(); renderChannelList(); renderMembers(); renderHeader();
+  $('#serverName').textContent = S.server.name;
+  $('#serverCodeShow').textContent = 'código: '+serverId;
+  $('#serverCodeShow').onclick = ()=>{ navigator.clipboard?.writeText(serverId); toast('Código copiado'); };
+  $('#inviteBtn').style.display='inline-flex';
+  $('#inviteBtn').onclick = openInviteModal;
+
+  $('#connBadge').style.display='flex';
+  $('#connText').textContent='conectando…';
+
+  const room = joinRoom({appId:'dzcord-app-v1', rtcConfig:RTC_CONFIG}, serverId);
+  S.room = room;
+
+  const [sendHello, onHello] = room.makeAction('hello');
+  const [sendMeta, onMeta] = room.makeAction('meta');
+  const [sendMetaReq, onMetaReq] = room.makeAction('mreq');
+  const [sendChat, onChat] = room.makeAction('chat');
+  const [sendPresence, onPresence] = room.makeAction('pres');
+  const [sendHist, onHist] = room.makeAction('hist');
+  const [sendHistReq, onHistReq] = room.makeAction('hreq');
+  S.actions = {sendHello,sendMeta,sendMetaReq,sendChat,sendPresence,sendHist,sendHistReq};
+
+  onHello((data,peerId)=>{
+    S.roster[peerId] = data;
+    renderMembers(); renderChannelList();
+  });
+  onMeta((data)=>{
+    S.server = data;
+    store('dz.server.'+serverId, data);
+    const bm = myServers.find(s=>s.id===serverId);
+    if(bm){ bm.name=data.name; store('dz.myservers',myServers); }
+    $('#serverName').textContent = data.name;
+    renderServerRail(); renderChannelList(); renderHeader();
+    $('#connText').textContent='conectado';
+  });
+  onMetaReq((_,peerId)=>{
+    if(S.server && S.server.channels?.length) sendMeta(S.server, [peerId]);
+  });
+  onChat((msg)=>{
+    if(!S.messages[msg.channelId]) S.messages[msg.channelId]=[];
+    S.messages[msg.channelId].push(msg);
+    if(S.messages[msg.channelId].length>500) S.messages[msg.channelId].shift();
+    if(msg.channelId===S.channelId) renderChat();
+  });
+  onHistReq((chanId,peerId)=>{
+    const h = S.messages[chanId]||[];
+    if(h.length) sendHist({channelId:chanId, msgs:h.slice(-60)}, [peerId]);
+  });
+  onHist((data)=>{
+    const existing = S.messages[data.channelId]||[];
+    const ids = new Set(existing.map(m=>m.id));
+    const merged = existing.concat(data.msgs.filter(m=>!ids.has(m.id)));
+    merged.sort((a,b)=>a.time-b.time);
+    S.messages[data.channelId]=merged;
+    if(data.channelId===S.channelId) renderChat();
+  });
+  onPresence((data,peerId)=>{
+    S.presence[peerId] = data;
+    renderChannelList(); renderMembers(); renderStage(); renderCamRow();
+    syncVoiceStreamTargets();
+  });
+
+  room.onPeerJoin((peerId)=>{
+    sendHello({userId:me.userId, username:me.username, color:me.color, status:me.status});
+    if(S.server?.channels?.length) sendMeta(S.server, [peerId]);
+    else sendMetaReq(null, [peerId]);
+    if(S.inVoiceChannel) sendPresence({channelId:S.inVoiceChannel, mic:S.micOn, cam:S.camOn, screen:S.screenOn}, [peerId]);
+    renderMembers();
+    $('#connText').textContent = 'conectado ('+(Object.keys(S.roster).length+1)+')';
+  });
+  room.onPeerLeave((peerId)=>{
+    delete S.roster[peerId];
+    delete S.presence[peerId];
+    delete S.streams[peerId];
+    renderMembers(); renderChannelList(); renderStage(); renderCamRow();
+    $('#connText').textContent = 'conectado ('+(Object.keys(S.roster).length+1)+')';
+  });
+
+  room.onPeerStream((stream, peerId, meta)=>{
+    if(!S.streams[peerId]) S.streams[peerId]={};
+    S.streams[peerId][meta?.kind || 'mic'] = stream;
+    if(meta?.kind==='mic'){
+      playRemoteAudio(peerId, stream);
+    }
+    renderStage(); renderCamRow(); renderStreamPicker();
+  });
+
+  sendHello({userId:me.userId, username:me.username, color:me.color, status:me.status});
+  sendMetaReq(null);
+  setTimeout(()=>{ $('#connText').textContent='conectado'; },1200);
+
+  renderChat();
 }
 
-
-function addSystemMessage(text) {
-
-    const div =
-        document.createElement("div");
-
-    div.className =
-        "message system";
-
-    div.textContent =
-        "⚙️ " + text;
-
-    $("messages").appendChild(div);
-
-    $("messages").scrollTop =
-        $("messages").scrollHeight;
+function leaveServerRoom(){
+  leaveVoice();
+  try{ S.room.leave(); }catch(e){}
+  S.room=null; S.actions={};
 }
 
-
-function addMessage(name, text) {
-
-    const div =
-        document.createElement("div");
-
-    div.className =
-        "message";
-
-
-    const nameElement =
-        document.createElement("span");
-
-    nameElement.className =
-        "message-name";
-
-    nameElement.textContent =
-        name + ": ";
-
-
-    const textElement =
-        document.createElement("span");
-
-    textElement.textContent =
-        text;
-
-
-    div.appendChild(nameElement);
-    div.appendChild(textElement);
-
-    $("messages").appendChild(div);
-
-    $("messages").scrollTop =
-        $("messages").scrollHeight;
+function persistAndBroadcastMeta(){
+  store('dz.server.'+S.serverId, S.server);
+  const bm = myServers.find(s=>s.id===S.serverId);
+  if(bm){ bm.name=S.server.name; store('dz.myservers',myServers); }
+  renderServerRail();
+  S.actions.sendMeta?.(S.server);
 }
 
-
-/* =====================================================
-   PARTICIPANTES
-===================================================== */
-
-function addParticipant(id, name) {
-
-    if (!id) return;
-
-    participants.set(
-        id,
-        name || "Usuário"
-    );
-
-    updateUserList();
+/* ======================= AUDIO PLAYBACK (hidden) ======================= */
+const audioEls = {};
+function playRemoteAudio(peerId, stream){
+  let el = audioEls[peerId];
+  if(!el){ el=document.createElement('audio'); el.autoplay=true; el.style.display='none'; document.body.appendChild(el); audioEls[peerId]=el; }
+  el.srcObject = stream;
 }
 
-
-function updateUserList() {
-
-    const box =
-        $("users");
-
-    box.innerHTML = "";
-
-
-    for (
-        const [id, name]
-        of participants
-    ) {
-
-        const div =
-            document.createElement("div");
-
-        div.className =
-            "user" +
-            (id === myPeerId
-                ? " me"
-                : "");
-
-
-        div.textContent =
-            (id === myPeerId
-                ? "🟢 "
-                : "⚪ ") +
-            name;
-
-
-        box.appendChild(div);
-    }
-}
-
-
-/* =====================================================
-   VÍDEOS
-===================================================== */
-
-function removeVideo(id) {
-
-    const card =
-        document.getElementById(
-            "video-" + id
-        );
-
-    if (card) {
-        card.remove();
-    }
-}
-
-
-function showLocalStream(stream) {
-
-    if (!stream) {
-
-        removeVideo("local");
-
-        return;
-    }
-
-
-    let card =
-        document.getElementById(
-            "video-local"
-        );
-
-
-    if (!card) {
-
-        card =
-            document.createElement("div");
-
-        card.className =
-            "video-card";
-
-        card.id =
-            "video-local";
-
-
-        const video =
-            document.createElement("video");
-
-        video.autoplay = true;
-        video.muted = true;
-        video.playsInline = true;
-
-
-        const label =
-            document.createElement("div");
-
-        label.className =
-            "video-name";
-
-        label.textContent =
-            myName + " (Você)";
-
-
-        const badge =
-            document.createElement("div");
-
-        badge.className =
-            "live-badge";
-
-        badge.textContent =
-            "TRANSMITINDO";
-
-
-        card.appendChild(video);
-        card.appendChild(label);
-        card.appendChild(badge);
-
-        $("videos").prepend(card);
-    }
-
-
-    const video =
-        card.querySelector("video");
-
-    video.srcObject =
-        stream;
-
-    video.play().catch(() => {});
-}
-
-
-function showRemoteStream(id, stream) {
-
-    let card =
-        document.getElementById(
-            "video-" + id
-        );
-
-
-    if (!card) {
-
-        card =
-            document.createElement("div");
-
-        card.className =
-            "video-card";
-
-        card.id =
-            "video-" + id;
-
-
-        const video =
-            document.createElement("video");
-
-        video.autoplay = true;
-        video.playsInline = true;
-        video.controls = false;
-
-
-        const label =
-            document.createElement("div");
-
-        label.className =
-            "video-name";
-
-        label.textContent =
-            participants.get(id) ||
-            "Usuário";
-
-
-        const badge =
-            document.createElement("div");
-
-        badge.className =
-            "live-badge";
-
-        badge.textContent =
-            "AO VIVO";
-
-
-        card.appendChild(video);
-        card.appendChild(label);
-        card.appendChild(badge);
-
-        $("videos").appendChild(card);
-    }
-
-
-    const video =
-        card.querySelector("video");
-
-
-    if (
-        video.srcObject !== stream
-    ) {
-
-        video.srcObject =
-            stream;
-
-        video.play().catch(() => {});
-    }
-}
-
-
-/* =====================================================
-   STREAM DE SAÍDA
-===================================================== */
-
-function getOutgoingStream() {
-
-    const stream =
-        new MediaStream();
-
-
-    /*
-       MICROFONE
-    */
-
-    if (
-        micEnabled &&
-        micStream
-    ) {
-
-        for (
-            const track
-            of micStream.getAudioTracks()
-        ) {
-
-            stream.addTrack(track);
-        }
-    }
-
-
-    /*
-       TELA
-       Tela possui prioridade sobre câmera.
-    */
-
-    if (
-        screenEnabled &&
-        screenStream
-    ) {
-
-        for (
-            const track
-            of screenStream.getVideoTracks()
-        ) {
-
-            stream.addTrack(track);
-        }
-
-
-        /*
-           Áudio da tela,
-           caso o navegador forneça.
-        */
-
-        if (!micEnabled) {
-
-            for (
-                const track
-                of screenStream.getAudioTracks()
-            ) {
-
-                stream.addTrack(track);
-            }
-        }
-
-    }
-
-    /*
-       CÂMERA
-    */
-
-    else if (
-        cameraEnabled &&
-        cameraStream
-    ) {
-
-        for (
-            const track
-            of cameraStream.getVideoTracks()
-        ) {
-
-            stream.addTrack(track);
-        }
-    }
-
-
-    return stream.getTracks().length
-        ? stream
-        : null;
-}
-
-
-/* =====================================================
-   CONFIGURAR CHAMADA
-===================================================== */
-
-function setupCall(call) {
-
-    const remoteId =
-        call.peer;
-
-
-    call.on(
-        "stream",
-        remoteStream => {
-
-            console.log(
-                "STREAM RECEBIDO:",
-                remoteId,
-                remoteStream
-            );
-
-
-            showRemoteStream(
-                remoteId,
-                remoteStream
-            );
-
-
-            setStatus(
-                "Recebendo mídia de " +
-                (
-                    participants.get(remoteId)
-                    || "usuário"
-                )
-            );
-        }
-    );
-
-
-    call.on(
-        "close",
-        () => {
-
-            if (
-                mediaCalls.get(remoteId)
-                === call
-            ) {
-
-                mediaCalls.delete(
-                    remoteId
-                );
-            }
-
-            removeVideo(
-                remoteId
-            );
-        }
-    );
-
-
-    call.on(
-        "error",
-        error => {
-
-            console.error(
-                "Erro na chamada:",
-                error
-            );
-
-
-            if (
-                mediaCalls.get(remoteId)
-                === call
-            ) {
-
-                mediaCalls.delete(
-                    remoteId
-                );
-            }
-        }
-    );
-}
-
-
-/* =====================================================
-   CHAMAR PARTICIPANTE
-===================================================== */
-
-function callPeer(id) {
-
-    if (!peer) return;
-
-    if (!id) return;
-
-    if (id === myPeerId) return;
-
-
-    const stream =
-        getOutgoingStream();
-
-
-    if (!stream) return;
-
-
-    /*
-       Já existe chamada.
-    */
-
-    if (
-        mediaCalls.has(id)
-    ) {
-
-        return;
-    }
-
-
-    console.log(
-        "FAZENDO CHAMADA:",
-        id
-    );
-
-
-    try {
-
-        const call =
-            peer.call(
-                id,
-                stream,
-                {
-                    metadata: {
-                        name: myName
-                    }
-                }
-            );
-
-
-        if (!call) {
-
-            console.error(
-                "PeerJS não criou a chamada."
-            );
-
-            return;
-        }
-
-
-        mediaCalls.set(
-            id,
-            call
-        );
-
-
-        setupCall(call);
-
-    } catch (error) {
-
-        console.error(
-            "Erro ao chamar:",
-            error
-        );
-    }
-}
-
-
-/* =====================================================
-   RECEBER CHAMADA
-===================================================== */
-
-function handleIncomingCall(call) {
-
-    const remoteId =
-        call.peer;
-
-
-    console.log(
-        "CHAMADA RECEBIDA DE:",
-        remoteId
-    );
-
-
-    /*
-       Evita duas chamadas
-       simultâneas entre as mesmas pessoas.
-    */
-
-    if (
-        mediaCalls.has(remoteId)
-    ) {
-
-        const existing =
-            mediaCalls.get(remoteId);
-
-
-        /*
-           Se nosso ID for menor,
-           mantemos a chamada que fizemos.
-        */
-
-        if (
-            String(myPeerId) <
-            String(remoteId)
-        ) {
-
-            call.close();
-
-            return;
-        }
-
-
-        /*
-           Caso contrário,
-           aceitamos a recebida.
-        */
-
-        try {
-            existing.close();
-        } catch {}
-
-        mediaCalls.delete(
-            remoteId
-        );
-    }
-
-
-    const outgoing =
-        getOutgoingStream();
-
-
-    try {
-
-        /*
-           Se temos câmera/mic/tela,
-           enviamos também.
-        */
-
-        if (outgoing) {
-
-            call.answer(
-                outgoing
-            );
-
-        } else {
-
-            /*
-               Mesmo sem mídia local,
-               podemos receber a tela
-               do amigo.
-            */
-
-            call.answer();
-        }
-
-
-        mediaCalls.set(
-            remoteId,
-            call
-        );
-
-
-        setupCall(call);
-
-    } catch (error) {
-
-        console.error(
-            "Erro respondendo chamada:",
-            error
-        );
-    }
-}
-
-
-/* =====================================================
-   RENEGOCIAR
-===================================================== */
-
-function renegotiateAll() {
-
-    console.log(
-        "Atualizando chamadas..."
-    );
-
-
-    /*
-       Fecha chamadas antigas.
-    */
-
-    for (
-        const call
-        of mediaCalls.values()
-    ) {
-
-        try {
-            call.close();
-        } catch {}
-    }
-
-
-    mediaCalls.clear();
-
-
-    const stream =
-        getOutgoingStream();
-
-
-    /*
-       Atualiza prévia local.
-    */
-
-    showLocalStream(
-        stream
-    );
-
-
-    if (!stream) {
-
-        setStatus(
-            "Mídia desligada"
-        );
-
-        return;
-    }
-
-
-    /*
-       Aguarda um pouco para
-       evitar colisões de chamadas.
-    */
-
-    let delay = 100;
-
-
-    for (
-        const id
-        of participants.keys()
-    ) {
-
-        if (
-            id === myPeerId
-        ) {
-            continue;
-        }
-
-
-        setTimeout(
-            () => {
-
-                callPeer(id);
-
-            },
-            delay
-        );
-
-
-        delay += 150;
-    }
-
-
-    setStatus(
-        "Mídia ativada"
-    );
-}
-
-
-/* =====================================================
-   CONEXÕES DE DADOS
-===================================================== */
-
-function handleDataConnection(conn) {
-
-    console.log(
-        "CONEXÃO DATA:",
-        conn.peer
-    );
-
-
-    dataConnections.set(
-        conn.peer,
-        conn
-    );
-
-
-    conn.on(
-        "open",
-        () => {
-
-            console.log(
-                "DATA ABERTA:",
-                conn.peer
-            );
-
-
-            /*
-               Somente host envia
-               informações iniciais.
-            */
-
-            if (isHost) {
-
-                conn.send({
-                    type: "welcome",
-                    hostId: hostId,
-                    roster:
-                        Array.from(
-                            participants.entries()
-                        )
-                });
-            }
-        }
-    );
-
-
-    conn.on(
-        "data",
-        data => {
-
-            handleDataMessage(
-                conn,
-                data
-            );
-        }
-    );
-
-
-    conn.on(
-        "close",
-        () => {
-
-            dataConnections.delete(
-                conn.peer
-            );
-
-
-            if (isHost) {
-
-                const oldName =
-                    participants.get(
-                        conn.peer
-                    ) ||
-                    "Usuário";
-
-
-                participants.delete(
-                    conn.peer
-                );
-
-
-                updateUserList();
-
-
-                /*
-                   Avisa todos.
-                */
-
-                broadcast({
-                    type: "user-left",
-                    id: conn.peer
-                });
-
-
-                removeVideo(
-                    conn.peer
-                );
-
-
-                const call =
-                    mediaCalls.get(
-                        conn.peer
-                    );
-
-
-                if (call) {
-
-                    try {
-                        call.close();
-                    } catch {}
-
-                    mediaCalls.delete(
-                        conn.peer
-                    );
-                }
-
-
-                addSystemMessage(
-                    oldName +
-                    " saiu da sala."
-                );
-            }
-        }
-    );
-
-
-    conn.on(
-        "error",
-        error => {
-
-            console.error(
-                "Erro DATA:",
-                error
-            );
-        }
-    );
-}
-
-
-/* =====================================================
-   MENSAGENS
-===================================================== */
-
-function handleDataMessage(
-    conn,
-    data
-) {
-
-    if (
-        !data ||
-        !data.type
-    ) {
-
-        return;
-    }
-
-
-    /* =================================================
-       JOIN
-    ================================================= */
-
-    if (
-        isHost &&
-        data.type === "join"
-    ) {
-
-        const id =
-            conn.peer;
-
-        const name =
-            data.name ||
-            "Usuário";
-
-
-        addParticipant(
-            id,
-            name
-        );
-
-
-        /*
-           Envia lista atualizada
-           para o novo usuário.
-        */
-
-        conn.send({
-            type: "roster",
-            roster:
-                Array.from(
-                    participants.entries()
-                )
+/* ======================= CHANNEL LIST ======================= */
+function renderChannelList(){
+  const c = $('#channelList'); c.innerHTML='';
+  if(!S.server?.channels?.length){
+    c.innerHTML = '<div style="padding:14px;color:var(--text-low);font-size:13px;">Nenhum canal ainda.</div>';
+  } else {
+    const groups = {text:[],voice:[]};
+    S.server.channels.forEach(ch=>groups[ch.type]?.push(ch));
+
+    const textGroup = document.createElement('div'); textGroup.className='chan-group';
+    textGroup.innerHTML = `<div class="chan-group-label"><span>Texto</span><button title="Novo canal de texto" onclick="window.__dz2.newChan('text')">+</button></div>`;
+    groups.text.forEach(ch=>{
+      const el=document.createElement('div');
+      el.className='chan-item'+(S.channelId===ch.id?' active':'');
+      el.innerHTML = `<span class="icon">#</span><span>${escapeHtml(ch.name)}</span><button class="del" onclick="window.__dz2.delChan(event,'${ch.id}')">✕</button>`;
+      el.onclick = ()=>selectChannel(ch.id,'text');
+      textGroup.appendChild(el);
+    });
+    c.appendChild(textGroup);
+
+    const voiceGroup = document.createElement('div'); voiceGroup.className='chan-group';
+    voiceGroup.innerHTML = `<div class="chan-group-label"><span>Voz</span><button title="Novo canal de voz" onclick="window.__dz2.newChan('voice')">+</button></div>`;
+    groups.voice.forEach(ch=>{
+      const el=document.createElement('div');
+      el.className='chan-item'+(S.channelId===ch.id && S.inVoiceChannel===ch.id?' active':'');
+      el.innerHTML = `<span class="icon">🔊</span><span>${escapeHtml(ch.name)}</span><button class="del" onclick="window.__dz2.delChan(event,'${ch.id}')">✕</button>`;
+      el.onclick = ()=>selectChannel(ch.id,'voice');
+      voiceGroup.appendChild(el);
+
+      const usersHere = peersInChannel(ch.id);
+      if(usersHere.length){
+        const uw = document.createElement('div'); uw.className='chan-voice-users';
+        usersHere.forEach(u=>{
+          const row=document.createElement('div'); row.className='vu';
+          row.innerHTML = `<span class="dot" style="background:${u.color}"></span><span>${escapeHtml(u.username)}</span>
+            <span class="mini-tags">${u.mic?'🎤':'🔇'}${u.screen?' 🖥️':''}${u.cam?' 📹':''}</span>`;
+          uw.appendChild(row);
         });
+        voiceGroup.appendChild(uw);
+      }
+    });
+    c.appendChild(voiceGroup);
+  }
+}
+window.__dz2 = {
+  newChan:(type)=>openCreateChannelModal(type),
+  delChan:(e,id)=>{ e.stopPropagation(); window.__dz.deleteChannel(id); }
+};
 
-
-        /*
-           Avisa todos os outros.
-        */
-
-        broadcast({
-            type: "user-joined",
-            id: id,
-            name: name
-        });
-
-
-        addSystemMessage(
-            name +
-            " entrou na sala."
-        );
-
-
-        return;
+function peersInChannel(channelId){
+  const list=[];
+  if(S.inVoiceChannel===channelId) list.push({username:me.username,color:me.color,mic:S.micOn,cam:S.camOn,screen:S.screenOn});
+  Object.entries(S.presence).forEach(([peerId,p])=>{
+    if(p.channelId===channelId){
+      const prof = S.roster[peerId]||{username:'Membro',color:'#666'};
+      list.push({username:prof.username,color:prof.color,mic:p.mic,cam:p.cam,screen:p.screen});
     }
-
-
-    /* =================================================
-       ROSTER
-    ================================================= */
-
-    if (
-        data.type === "roster"
-    ) {
-
-        participants.clear();
-
-
-        for (
-            const item
-            of data.roster || []
-        ) {
-
-            addParticipant(
-                item[0],
-                item[1]
-            );
-        }
-
-
-        updateUserList();
-
-
-        /*
-           Se já estamos transmitindo,
-           conecta com todos.
-        */
-
-        if (
-            getOutgoingStream()
-        ) {
-
-            setTimeout(
-                () => {
-                    renegotiateAll();
-                },
-                300
-            );
-        }
-
-
-        return;
-    }
-
-
-    /* =================================================
-       USER JOINED
-    ================================================= */
-
-    if (
-        data.type === "user-joined"
-    ) {
-
-        addParticipant(
-            data.id,
-            data.name
-        );
-
-
-        addSystemMessage(
-            data.name +
-            " entrou na sala."
-        );
-
-
-        /*
-           Se temos mídia,
-           chamamos o novo usuário.
-        */
-
-        if (
-            getOutgoingStream() &&
-            data.id !== myPeerId
-        ) {
-
-            setTimeout(
-                () => {
-                    callPeer(
-                        data.id
-                    );
-                },
-                500
-            );
-        }
-
-
-        return;
-    }
-
-
-    /* =================================================
-       USER LEFT
-    ================================================= */
-
-    if (
-        data.type === "user-left"
-    ) {
-
-        const name =
-            participants.get(
-                data.id
-            ) ||
-            "Usuário";
-
-
-        participants.delete(
-            data.id
-        );
-
-
-        updateUserList();
-
-
-        removeVideo(
-            data.id
-        );
-
-
-        const call =
-            mediaCalls.get(
-                data.id
-            );
-
-
-        if (call) {
-
-            try {
-                call.close();
-            } catch {}
-
-            mediaCalls.delete(
-                data.id
-            );
-        }
-
-
-        addSystemMessage(
-            name +
-            " saiu da sala."
-        );
-
-
-        return;
-    }
-
-
-    /* =================================================
-       CHAT
-    ================================================= */
-
-    if (
-        isHost &&
-        data.type === "chat"
-    ) {
-
-        /*
-           Host mostra a própria mensagem.
-        */
-
-        addMessage(
-            data.name,
-            data.text
-        );
-
-
-        /*
-           Envia para todos os clientes.
-        */
-
-        broadcast(data);
-
-
-        return;
-    }
-
-
-    if (
-        !isHost &&
-        data.type === "chat"
-    ) {
-
-        addMessage(
-            data.name,
-            data.text
-        );
-
-        return;
-    }
+  });
+  return list;
 }
 
-
-/* =====================================================
-   BROADCAST
-===================================================== */
-
-function broadcast(data) {
-
-    for (
-        const conn
-        of dataConnections.values()
-    ) {
-
-        if (
-            conn.open
-        ) {
-
-            try {
-                conn.send(data);
-            } catch {}
-        }
-    }
+/* ======================= SELECT CHANNEL ======================= */
+function selectChannel(chId, type){
+  S.channelId = chId;
+  renderChannelList(); renderHeader();
+  if(type==='text'){
+    $('#textView').style.display='flex';
+    $('#voiceView').style.display='none';
+    $('#msgInput').disabled=false;
+    S.actions.sendHistReq?.(chId);
+    renderChat();
+  } else {
+    $('#textView').style.display='none';
+    $('#voiceView').style.display='flex';
+    joinVoice(chId);
+  }
+  closeMobileSidebar();
+}
+function renderHeader(){
+  const ch = S.server?.channels?.find(c=>c.id===S.channelId);
+  $('#headerIcon').textContent = ch? (ch.type==='voice'?'🔊':'#') : '#';
+  $('#headerTitle').textContent = ch? ch.name : 'selecione um canal';
 }
 
-
-/* =====================================================
-   ENVIAR PARA HOST
-===================================================== */
-
-function sendToHost(data) {
-
-    if (
-        hostConnection &&
-        hostConnection.open
-    ) {
-
-        try {
-
-            hostConnection.send(
-                data
-            );
-
-            return true;
-
-        } catch {}
-    }
-
-
-    return false;
+/* ======================= CHAT ======================= */
+$('#msgInput').addEventListener('input', e=>{ e.target.style.height='auto'; e.target.style.height=Math.min(e.target.scrollHeight,140)+'px'; });
+$('#msgInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+});
+$('#sendBtn').onclick = sendMessage;
+function sendMessage(){
+  const input = $('#msgInput');
+  const text = input.value.trim();
+  if(!text || !S.channelId) return;
+  const msg = {id:uid(), channelId:S.channelId, userId:me.userId, username:me.username, color:me.color, text, time:Date.now()};
+  if(!S.messages[msg.channelId]) S.messages[msg.channelId]=[];
+  S.messages[msg.channelId].push(msg);
+  S.actions.sendChat?.(msg);
+  input.value=''; input.style.height='auto';
+  renderChat();
+}
+function renderChat(){
+  const box = $('#chatScroll');
+  const list = S.messages[S.channelId]||[];
+  if(!S.channelId){
+    box.innerHTML = '<div class="empty-chat"><div class="big">💬</div>Selecione um canal de texto.</div>'; return;
+  }
+  if(!list.length){
+    box.innerHTML = '<div class="empty-chat"><div class="big">👋</div>Nenhuma mensagem ainda. Diga oi!</div>'; return;
+  }
+  box.innerHTML = list.map(m=>`
+    <div class="msg">
+      <div class="avatar" style="background:${m.color};width:36px;height:36px;">${initials(m.username)}</div>
+      <div class="msg-body">
+        <div class="msg-head"><span class="u">${escapeHtml(m.username)}</span><span class="t">${fmtTime(m.time)}</span></div>
+        <div class="msg-text">${escapeHtml(m.text)}</div>
+      </div>
+    </div>
+  `).join('');
+  box.scrollTop = box.scrollHeight;
 }
 
+/* emoji picker */
+const epop = $('#emojiPop');
+epop.innerHTML = EMOJIS.map(e=>`<button type="button">${e}</button>`).join('');
+epop.addEventListener('click', e=>{
+  if(e.target.tagName==='BUTTON'){
+    const input=$('#msgInput'); input.value += e.target.textContent; input.focus();
+  }
+});
+$('#emojiBtn').onclick = ()=> epop.classList.toggle('on');
+document.addEventListener('click', e=>{
+  if(!epop.contains(e.target) && e.target.id!=='emojiBtn') epop.classList.remove('on');
+});
 
-/* =====================================================
-   CRIAR HOST
-===================================================== */
+/* ======================= VOICE / MEDIA ======================= */
+async function joinVoice(chId){
+  if(S.inVoiceChannel===chId){ renderStage(); renderCamRow(); return; }
+  if(S.inVoiceChannel) await stopAllMediaAndLeaveVoiceOnly();
 
-function createHost(hostPeer) {
-
-    peer =
-        hostPeer;
-
-    isHost =
-        true;
-
-    hostId =
-        getHostId(room);
-
-    myPeerId =
-        hostPeer.id;
-
-
-    /*
-       Registra eventos.
-    */
-
-    peer.on(
-        "connection",
-        handleDataConnection
-    );
-
-    peer.on(
-        "call",
-        handleIncomingCall
-    );
-
-
-    peer.on(
-        "error",
-        error => {
-
-            console.error(
-                "Erro HOST:",
-                error
-            );
-
-            setStatus(
-                "Erro: " +
-                (
-                    error.type ||
-                    error.message
-                )
-            );
-        }
-    );
-
-
-    peer.on(
-        "disconnected",
-        () => {
-
-            setStatus(
-                "Desconectado..."
-            );
-
-
-            try {
-                peer.reconnect();
-            } catch {}
-        }
-    );
-
-
-    /*
-       Adiciona o host.
-    */
-
-    participants.clear();
-
-
-    addParticipant(
-        myPeerId,
-        myName
-    );
-
-
-    /*
-       Abre aplicação.
-    */
-
-    $("login").style.display =
-        "none";
-
-    $("app").style.display =
-        "flex";
-
-
-    $("roomInfo").textContent =
-        "Código: " + room;
-
-
-    setStatus(
-        "Sala criada"
-    );
-
-
-    addSystemMessage(
-        "Você criou a sala."
-    );
+  S.inVoiceChannel = chId;
+  try{
+    S.local.mic = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+    S.micOn = true;
+  }catch(e){
+    toast('Não foi possível acessar o microfone.'); S.micOn=false;
+  }
+  updateVoiceBarUI();
+  S.actions.sendPresence?.({channelId:chId, mic:S.micOn, cam:S.camOn, screen:S.screenOn});
+  syncVoiceStreamTargets();
+  renderChannelList(); renderStage(); renderCamRow();
 }
 
-
-/* =====================================================
-   ENTRAR COMO CLIENTE
-===================================================== */
-
-
-function becomeClient() {
-
-    isHost = false;
-
-    hostId = getHostId(room);
-
-    console.log("================================");
-    console.log("ENTRANDO COMO CLIENTE");
-    console.log("HOST:", hostId);
-    console.log("================================");
-
-    /*
-       Cria um Peer com ID aleatório.
-    */
-
-    peer = new Peer(undefined, PEER_CONFIG);
-
-
-    peer.on("open", id => {
-
-        myPeerId = id;
-
-        console.log("MEU ID:", id);
-
-        /*
-           Abre a aplicação imediatamente.
-        */
-
-        $("login").style.display = "none";
-        $("app").style.display = "flex";
-
-        $("roomInfo").textContent =
-            "Código: " + room;
-
-        setStatus(
-            "🔎 Procurando a sala..."
-        );
-
-        /*
-           Começa tentativa de conexão.
-        */
-
-        connectToHost();
-
-    });
-
-
-    peer.on("call", handleIncomingCall);
-
-
-    peer.on("connection", handleDataConnection);
-
-
-    peer.on("error", error => {
-
-        console.error(
-            "ERRO CLIENTE:",
-            error
-        );
-
-        /*
-           Alguns erros são temporários.
-           Não derruba a aplicação.
-        */
-
-        if (
-            error.type === "network" ||
-            error.type === "server-error" ||
-            error.type === "socket-error" ||
-            error.type === "socket-closed"
-        ) {
-
-            setStatus(
-                "🌐 Reconectando..."
-            );
-
-            scheduleHostRetry();
-
-            return;
-        }
-
-
-        setStatus(
-            "Erro: " +
-            (
-                error.type ||
-                error.message ||
-                "desconhecido"
-            )
-        );
-
-    });
-
-
-    peer.on("disconnected", () => {
-
-        console.log(
-            "Peer desconectado do servidor."
-        );
-
-        setStatus(
-            "🌐 Reconectando ao servidor..."
-        );
-
-        try {
-            peer.reconnect();
-        } catch (error) {
-            console.error(error);
-        }
-
-    });
-
-
-    peer.on("close", () => {
-
-        console.log(
-            "Peer fechado."
-        );
-
-    });
-
+function currentVoicePeers(){
+  return Object.entries(S.presence).filter(([_,p])=>p.channelId===S.inVoiceChannel).map(([peerId])=>peerId);
 }
 
-
-/* =====================================================
-   CONECTAR AO HOST
-===================================================== */
-
-let hostRetryTimer = null;
-let hostRetryCount = 0;
-let hostConnected = false;
-
-
-function connectToHost() {
-
-    if (!peer) {
-        return;
-    }
-
-    if (peer.destroyed) {
-        return;
-    }
-
-    if (hostConnected) {
-        return;
-    }
-
-
-    hostRetryCount++;
-
-    console.log(
-        "================================"
-    );
-
-    console.log(
-        "TENTATIVA DE CONEXÃO:",
-        hostRetryCount
-    );
-
-    console.log(
-        "HOST:",
-        hostId
-    );
-
-    console.log(
-        "MEU ID:",
-        myPeerId
-    );
-
-    console.log(
-        "================================"
-    );
-
-
-    setStatus(
-        "🔎 Conectando à sala... (" +
-        hostRetryCount +
-        ")"
-    );
-
-
-    /*
-       Fecha conexão antiga
-       se existir.
-    */
-
-    if (hostConnection) {
-
-        try {
-            hostConnection.close();
-        } catch {}
-
-        hostConnection = null;
-    }
-
-
-    let connection;
-
-
-    try {
-
-        connection = peer.connect(
-            hostId,
-            {
-                reliable: true,
-                serialization: "json"
-            }
-        );
-
-    } catch (error) {
-
-        console.error(
-            "ERRO AO CRIAR CONEXÃO:",
-            error
-        );
-
-        scheduleHostRetry();
-
-        return;
-    }
-
-
-    hostConnection = connection;
-
-
-    /*
-       Conexão abriu.
-    */
-
-    connection.on("open", () => {
-
-        /*
-           Ignora conexão antiga.
-        */
-
-        if (
-            hostConnection !== connection
-        ) {
-            return;
-        }
-
-
-        console.log(
-            "================================"
-        );
-
-        console.log(
-            "✅ CONECTADO AO HOST!"
-        );
-
-        console.log(
-            "================================"
-        );
-
-
-        hostConnected = true;
-        hostRetryCount = 0;
-
-
-        setStatus(
-            "🟢 Conectado à sala"
-        );
-
-
-        /*
-           Cancela retry.
-        */
-
-        if (hostRetryTimer) {
-
-            clearTimeout(
-                hostRetryTimer
-            );
-
-            hostRetryTimer = null;
-        }
-
-
-        /*
-           Envia nosso nome.
-        */
-
-        try {
-
-            connection.send({
-                type: "join",
-                name: myName
-            });
-
-        } catch (error) {
-
-            console.error(
-                "Erro enviando JOIN:",
-                error
-            );
-
-            hostConnected = false;
-
-            scheduleHostRetry();
-        }
-
+let sentTargets = { mic:new Set(), cam:new Set(), screen:new Set() };
+function syncVoiceStreamTargets(){
+  if(!S.room) return;
+  const wanted = S.inVoiceChannel ? new Set(currentVoicePeers()) : new Set();
+  ['mic','cam','screen'].forEach(kind=>{
+    const stream = S.local[kind];
+    if(!stream) { sentTargets[kind]=new Set(); return; }
+    const prev = sentTargets[kind];
+    wanted.forEach(pid=>{
+      if(!prev.has(pid)){
+        try{ S.room.addStream(stream, [pid], {kind}); }catch(e){}
+      }
     });
-
-
-    /*
-       Recebe dados do host.
-    */
-
-    connection.on("data", data => {
-
-        if (
-            hostConnection !== connection
-        ) {
-            return;
-        }
-
-
-        handleDataMessage(
-            connection,
-            data
-        );
-
+    prev.forEach(pid=>{
+      if(!wanted.has(pid)){
+        try{ S.room.removeStream(stream, [pid]); }catch(e){}
+      }
     });
-
-
-    /*
-       Erro.
-    */
-
-    connection.on("error", error => {
-
-        console.error(
-            "ERRO CONEXÃO COM HOST:",
-            error
-        );
-
-
-        if (
-            hostConnection === connection
-        ) {
-
-            hostConnected = false;
-        }
-
-
-        scheduleHostRetry();
-
-    });
-
-
-    /*
-       Host fechou.
-    */
-
-    connection.on("close", () => {
-
-        console.log(
-            "Conexão com host fechada."
-        );
-
-
-        if (
-            hostConnection === connection
-        ) {
-
-            hostConnected = false;
-        }
-
-
-        /*
-           Tenta novamente automaticamente.
-        */
-
-        scheduleHostRetry();
-
-    });
-
-
-    /*
-       Se o PeerJS simplesmente
-       ficar pendurado sem abrir,
-       força uma nova tentativa.
-    */
-
-    setTimeout(() => {
-
-        if (
-            hostConnection === connection &&
-            !connection.open &&
-            !hostConnected
-        ) {
-
-            console.log(
-                "Timeout aguardando host."
-            );
-
-
-            try {
-                connection.close();
-            } catch {}
-
-
-            hostConnection = null;
-
-
-            scheduleHostRetry();
-
-        }
-
-    }, 5000);
-
+    sentTargets[kind] = wanted;
+  });
 }
 
-
-/*
-   Agenda nova tentativa.
-*/
-
-function scheduleHostRetry() {
-
-    if (hostConnected) {
-        return;
-    }
-
-
-    if (hostRetryTimer) {
-        return;
-    }
-
-
-    /*
-       Limita o intervalo
-       para não bombardear o PeerJS.
-    */
-
-    const delay =
-        Math.min(
-            1500 + (hostRetryCount * 500),
-            5000
-        );
-
-
-    console.log(
-        "Nova tentativa em",
-        delay,
-        "ms"
-    );
-
-
-    setStatus(
-        "🔄 Procurando o host..."
-    );
-
-
-    hostRetryTimer =
-        setTimeout(() => {
-
-            hostRetryTimer = null;
-
-            connectToHost();
-
-        }, delay);
-
+function updateVoiceBarUI(){
+  $('#vMic').classList.toggle('off', !S.micOn);
+  $('#vCam').classList.toggle('live', S.camOn);
+  $('#vScreen').classList.toggle('live', S.screenOn);
+  $('#micToggleBar').classList.toggle('off', !S.micOn);
 }
 
-
-
-/* =====================================================
-   ENTRAR NA SALA
-===================================================== */
-
-$("joinBtn").onclick =
-    () => {
-
-        myName =
-            $("nameInput")
-                .value
-                .trim();
-
-
-        room =
-            $("roomInput")
-                .value
-                .trim();
-
-
-        if (!myName) {
-
-            $("loginStatus")
-                .textContent =
-                "Digite seu nome.";
-
-            return;
-        }
-
-
-        if (!room) {
-
-            $("loginStatus")
-                .textContent =
-                "Digite o código da sala.";
-
-            return;
-        }
-
-
-        $("loginStatus")
-            .textContent =
-            "Entrando na sala...";
-
-
-        const wantedHost =
-            getHostId(room);
-
-
-        /*
-           Tenta ocupar o ID fixo
-           do host.
-
-           Se conseguir:
-           somos o primeiro.
-
-           Se receber unavailable-id:
-           alguém já é o host.
-        */
-
-        const hostAttempt =
-            new Peer(
-                wantedHost
-            );
-
-
-        let decided =
-            false;
-
-
-        hostAttempt.on(
-            "open",
-            id => {
-
-                if (decided) {
-                    return;
-                }
-
-
-                decided = true;
-
-
-                console.log(
-                    "HOST CRIADO:",
-                    id
-                );
-
-
-                createHost(
-                    hostAttempt
-                );
-            }
-        );
-
-
-        hostAttempt.on(
-            "error",
-            error => {
-
-                if (decided) {
-                    return;
-                }
-
-
-                console.log(
-                    "TENTATIVA HOST:",
-                    error.type
-                );
-
-
-                /*
-                   A sala já existe.
-                */
-
-                if (
-                    error.type ===
-                    "unavailable-id"
-                ) {
-
-                    decided = true;
-
-
-                    try {
-                        hostAttempt.destroy();
-                    } catch {}
-
-
-                    becomeClient();
-
-
-                    return;
-                }
-
-
-                /*
-                   Outro erro.
-                */
-
-                console.error(
-                    error
-                );
-
-
-                $("loginStatus")
-                    .textContent =
-                    "Erro: " +
-                    (
-                        error.type ||
-                        error.message
-                    );
-            }
-        );
-
-
-        /*
-           Timeout.
-
-           Se o PeerJS não responder,
-           tenta entrar como cliente.
-        */
-
-        setTimeout(
-            () => {
-
-                if (decided) {
-                    return;
-                }
-
-
-                decided = true;
-
-
-                try {
-                    hostAttempt.destroy();
-                } catch {}
-
-
-                becomeClient();
-
-            },
-            5000
-        );
-    };
-
-
-/* =====================================================
-   ENTER
-===================================================== */
-
-$("nameInput").addEventListener(
-    "keydown",
-    event => {
-
-        if (
-            event.key === "Enter"
-        ) {
-
-            $("joinBtn").click();
-        }
-    }
-);
-
-
-$("roomInput").addEventListener(
-    "keydown",
-    event => {
-
-        if (
-            event.key === "Enter"
-        ) {
-
-            $("joinBtn").click();
-        }
-    }
-);
-
-
-/* =====================================================
-   MICROFONE
-===================================================== */
-
-$("micBtn").onclick =
-    async () => {
-
-        try {
-
-            if (!micEnabled) {
-
-                micStream =
-                    await navigator.mediaDevices
-                        .getUserMedia({
-                            audio: true
-                        });
-
-
-                micEnabled =
-                    true;
-
-
-                $("micBtn")
-                    .classList
-                    .add("active");
-
-
-                addSystemMessage(
-                    "Microfone ativado."
-                );
-
-            } else {
-
-                if (micStream) {
-
-                    for (
-                        const track
-                        of micStream.getTracks()
-                    ) {
-
-                        try {
-                            track.stop();
-                        } catch {}
-                    }
-                }
-
-
-                micStream =
-                    null;
-
-                micEnabled =
-                    false;
-
-
-                $("micBtn")
-                    .classList
-                    .remove("active");
-
-
-                addSystemMessage(
-                    "Microfone desativado."
-                );
-            }
-
-
-            renegotiateAll();
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-
-
-            alert(
-                "Não foi possível acessar o microfone."
-            );
-        }
-    };
-
-
-/* =====================================================
-   CÂMERA
-===================================================== */
-
-$("cameraBtn").onclick =
-    async () => {
-
-        try {
-
-            if (!cameraEnabled) {
-
-                cameraStream =
-                    await navigator.mediaDevices
-                        .getUserMedia({
-                            video: true
-                        });
-
-
-                cameraEnabled =
-                    true;
-
-
-                $("cameraBtn")
-                    .classList
-                    .add("active");
-
-
-                addSystemMessage(
-                    "Câmera ativada."
-                );
-
-            } else {
-
-                if (cameraStream) {
-
-                    for (
-                        const track
-                        of cameraStream.getTracks()
-                    ) {
-
-                        try {
-                            track.stop();
-                        } catch {}
-                    }
-                }
-
-
-                cameraStream =
-                    null;
-
-                cameraEnabled =
-                    false;
-
-
-                $("cameraBtn")
-                    .classList
-                    .remove("active");
-
-
-                addSystemMessage(
-                    "Câmera desativada."
-                );
-            }
-
-
-            renegotiateAll();
-
-        } catch (error) {
-
-            console.error(
-                error
-            );
-
-
-            alert(
-                "Não foi possível acessar a câmera."
-            );
-        }
-    };
-
-
-/* =====================================================
-   COMPARTILHAR TELA
-===================================================== */
-
-$("screenBtn").onclick =
-    async () => {
-
-        /*
-           Se já está transmitindo,
-           para.
-        */
-
-        if (screenEnabled) {
-
-            stopScreenShare();
-
-            return;
-        }
-
-
-        try {
-
-            /*
-               IMPORTANTE:
-
-               getDisplayMedia precisa ser
-               chamado diretamente pelo clique.
-            */
-
-            const stream =
-                await navigator.mediaDevices
-                    .getDisplayMedia({
-                        video: {
-                            cursor: "always"
-                        },
-                        audio: true
-                    });
-
-
-            /*
-               Guarda a stream.
-            */
-
-            screenStream =
-                stream;
-
-
-            screenEnabled =
-                true;
-
-
-            $("screenBtn")
-                .classList
-                .add("active");
-
-
-            /*
-               Mostra sua própria tela.
-            */
-
-            showLocalStream(
-                getOutgoingStream()
-            );
-
-
-            addSystemMessage(
-                "Você começou a transmitir a tela."
-            );
-
-
-            setStatus(
-                "🖥️ Transmitindo tela"
-            );
-
-
-            /*
-               Detecta quando o usuário
-               clica em "Parar compartilhamento"
-               no Chrome.
-            */
-
-            const videoTrack =
-                stream.getVideoTracks()[0];
-
-
-            if (videoTrack) {
-
-                videoTrack.onended =
-                    () => {
-
-                        if (
-                            screenStream ===
-                            stream
-                        ) {
-
-                            stopScreenShare(
-                                false
-                            );
-                        }
-                    };
-            }
-
-
-            /*
-               Envia para TODOS.
-            */
-
-            renegotiateAll();
-
-
-        } catch (error) {
-
-            console.error(
-                "SCREEN ERROR:",
-                error
-            );
-
-
-            /*
-               Cancelou o seletor.
-            */
-
-            if (
-                error.name ===
-                "AbortError"
-            ) {
-
-                setStatus(
-                    "Compartilhamento cancelado."
-                );
-
-                return;
-            }
-
-
-            alert(
-                "Erro ao compartilhar tela:\n" +
-                error.message
-            );
-        }
-    };
-
-
-/* =====================================================
-   PARAR TELA
-===================================================== */
-
-function stopScreenShare() {
-
-    const oldStream =
-        screenStream;
-
-
-    screenStream =
-        null;
-
-
-    screenEnabled =
-        false;
-
-
-    $("screenBtn")
-        .classList
-        .remove("active");
-
-
-    if (oldStream) {
-
-        for (
-            const track
-            of oldStream.getTracks()
-        ) {
-
-            try {
-                track.stop();
-            } catch {}
-        }
-    }
-
-
-    /*
-       Se houver câmera,
-       volta para ela.
-    */
-
-    showLocalStream(
-        getOutgoingStream()
-    );
-
-
-    /*
-       Atualiza todos.
-    */
-
-    renegotiateAll();
-
-
-    addSystemMessage(
-        "Você parou a transmissão."
-    );
-
-
-    setStatus(
-        "Transmissão encerrada."
-    );
+$('#vMic').onclick = ()=>{
+  if(!S.local.mic) return;
+  S.micOn = !S.micOn;
+  S.local.mic.getAudioTracks().forEach(t=>t.enabled=S.micOn);
+  updateVoiceBarUI();
+  S.actions.sendPresence?.({channelId:S.inVoiceChannel, mic:S.micOn, cam:S.camOn, screen:S.screenOn});
+  renderChannelList();
+};
+$('#micToggleBar').onclick = ()=> $('#vMic').onclick();
+
+$('#vCam').onclick = async ()=>{
+  if(!S.inVoiceChannel){ toast('Entre em um canal de voz primeiro.'); return; }
+  if(!S.camOn){
+    try{
+      S.local.cam = await navigator.mediaDevices.getUserMedia({video:{width:320,height:240}});
+      S.camOn = true;
+      renderCamRow();
+    }catch(e){ toast('Não foi possível acessar a câmera.'); return; }
+  } else {
+    S.local.cam?.getTracks().forEach(t=>t.stop());
+    S.local.cam = null; S.camOn = false;
+    renderCamRow();
+  }
+  updateVoiceBarUI();
+  syncVoiceStreamTargets();
+  S.actions.sendPresence?.({channelId:S.inVoiceChannel, mic:S.micOn, cam:S.camOn, screen:S.screenOn});
+  renderChannelList();
+};
+
+$('#vScreen').onclick = async ()=>{
+  if(!S.inVoiceChannel){ toast('Entre em um canal de voz primeiro.'); return; }
+  if(!S.screenOn){
+    try{
+      S.local.screen = await navigator.mediaDevices.getDisplayMedia({video:{cursor:'always'},audio:false});
+      S.screenOn = true;
+      S.local.screen.getVideoTracks()[0].addEventListener('ended', stopScreenShare);
+      S.viewingPeer='me';
+    }catch(e){ toast('Compartilhamento de tela cancelado.'); return; }
+  } else {
+    stopScreenShare();
+  }
+  updateVoiceBarUI();
+  syncVoiceStreamTargets();
+  S.actions.sendPresence?.({channelId:S.inVoiceChannel, mic:S.micOn, cam:S.camOn, screen:S.screenOn});
+  renderChannelList(); renderStage(); renderStreamPicker();
+};
+function stopScreenShare(){
+  S.local.screen?.getTracks().forEach(t=>t.stop());
+  S.local.screen=null; S.screenOn=false;
+  if(S.viewingPeer==='me') S.viewingPeer=null;
+  updateVoiceBarUI();
+  syncVoiceStreamTargets();
+  S.actions.sendPresence?.({channelId:S.inVoiceChannel, mic:S.micOn, cam:S.camOn, screen:S.screenOn});
+  renderChannelList(); renderStage(); renderStreamPicker();
 }
 
+$('#vLeave').onclick = ()=> leaveVoice();
+async function leaveVoice(){
+  if(!S.inVoiceChannel) return;
+  await stopAllMediaAndLeaveVoiceOnly();
+  S.channelId = null;
+  renderChannelList(); renderHeader();
+  $('#voiceView').style.display='none';
+  $('#textView').style.display='flex';
+}
+async function stopAllMediaAndLeaveVoiceOnly(){
+  const chId = S.inVoiceChannel;
+  ['mic','cam','screen'].forEach(kind=>{
+    if(S.local[kind]){
+      S.local[kind].getTracks().forEach(t=>t.stop());
+      S.local[kind]=null;
+    }
+  });
+  S.micOn=S.camOn=S.screenOn=false; S.viewingPeer=null;
+  syncVoiceStreamTargets();
+  S.actions.sendPresence?.({channelId:null, mic:false, cam:false, screen:false});
+  S.inVoiceChannel=null;
+  renderStage(); renderCamRow();
+}
+window.addEventListener('beforeunload', ()=>{ try{ stopAllMediaAndLeaveVoiceOnly(); }catch(e){} });
 
-/* =====================================================
-   CHAT
-===================================================== */
+/* ======================= STAGE RENDERING ======================= */
+function activeBroadcasters(){
+  const arr=[];
+  if(S.screenOn) arr.push({peerId:'me', username:me.username, stream:S.local.screen});
+  Object.entries(S.streams).forEach(([peerId,kinds])=>{
+    if(kinds.screen && S.presence[peerId]?.channelId===S.inVoiceChannel){
+      const prof=S.roster[peerId]||{username:'Membro'};
+      arr.push({peerId, username:prof.username, stream:kinds.screen});
+    }
+  });
+  return arr;
+}
+function renderStreamPicker(){
+  const wrap = $('#streamPicker');
+  const list = activeBroadcasters();
+  if(list.length<2){ wrap.style.display='none'; wrap.innerHTML=''; return; }
+  wrap.style.display='flex';
+  wrap.innerHTML = list.map(b=>`<button data-p="${b.peerId}" class="${S.viewingPeer===b.peerId?'active':''}">🖥️ ${escapeHtml(b.username)}</button>`).join('');
+  $$('button',wrap).forEach(btn=>btn.onclick=()=>{ S.viewingPeer=btn.dataset.p; renderStage(); renderStreamPicker(); });
+}
+function renderStage(){
+  const top = $('#stageTop');
+  const list = activeBroadcasters();
+  if(!list.length){
+    top.innerHTML = `<div class="stage-empty"><div class="big">🎧</div>Ninguém está transmitindo a tela agora.</div>`;
+    renderStreamPicker();
+    return;
+  }
+  if(!S.viewingPeer || !list.find(b=>b.peerId===S.viewingPeer)) S.viewingPeer=list[0].peerId;
+  const chosen = list.find(b=>b.peerId===S.viewingPeer);
+  top.innerHTML = `<div class="screen-tile"><div class="tag"><span class="live-dot"></span>${escapeHtml(chosen.username)}${chosen.peerId==='me'?' (você)':''}</div><video autoplay playsinline ${chosen.peerId==='me'?'muted':''}></video></div>`;
+  $('video',top).srcObject = chosen.stream;
+  renderStreamPicker();
+}
+function renderCamRow(){
+  const row = $('#camRow'); row.innerHTML='';
+  if(S.camOn && S.local.cam){
+    const tile=document.createElement('div'); tile.className='cam-tile';
+    tile.innerHTML = `<video autoplay playsinline muted></video><div class="name">${escapeHtml(me.username)} (você)</div>`;
+    row.appendChild(tile); $('video',tile).srcObject=S.local.cam;
+  }
+  Object.entries(S.streams).forEach(([peerId,kinds])=>{
+    if(kinds.cam && S.presence[peerId]?.channelId===S.inVoiceChannel){
+      const prof=S.roster[peerId]||{username:'Membro'};
+      const tile=document.createElement('div'); tile.className='cam-tile';
+      tile.innerHTML = `<video autoplay playsinline></video><div class="name">${escapeHtml(prof.username)}</div>`;
+      row.appendChild(tile); $('video',tile).srcObject=kinds.cam;
+    }
+  });
+}
 
-$("chatForm").onsubmit =
-    event => {
+/* ======================= MEMBERS PANEL ======================= */
+function renderMembers(){
+  const p = $('#membersPanel');
+  const online = Object.entries(S.roster);
+  p.innerHTML = `<h4>Online — ${online.length+1}</h4>`;
+  const meRow = document.createElement('div'); meRow.className='member';
+  meRow.innerHTML = `<div class="avatar" style="background:${me.color};width:30px;height:30px;font-size:11px;">${initials(me.username)}<span class="status-dot" style="background:var(--online)"></span></div>
+    <div><div class="name">${escapeHtml(me.username)} (você)</div><div class="sub">${S.inVoiceChannel?'em canal de voz':'online'}</div></div>`;
+  p.appendChild(meRow);
+  online.forEach(([peerId,prof])=>{
+    const pres = S.presence[peerId];
+    const row=document.createElement('div'); row.className='member';
+    row.innerHTML = `<div class="avatar" style="background:${prof.color};width:30px;height:30px;font-size:11px;">${initials(prof.username)}<span class="status-dot" style="background:var(--online)"></span></div>
+      <div><div class="name">${escapeHtml(prof.username)}</div><div class="sub">${pres?.channelId? 'em canal de voz':'online'}</div></div>`;
+    p.appendChild(row);
+  });
+}
 
-        event.preventDefault();
+/* ======================= MOBILE NAV ======================= */
+$('#hamburger').onclick = ()=>{ $('#sidebar').classList.add('open'); $('#scrim').classList.add('on'); };
+$('#scrim').onclick = closeMobileSidebar;
+function closeMobileSidebar(){ $('#sidebar').classList.remove('open'); $('#scrim').classList.remove('on'); }
 
-
-        const text =
-            $("chatInput")
-                .value
-                .trim();
-
-
-        if (!text) {
-            return;
-        }
-
-
-        const data = {
-            type: "chat",
-            name: myName,
-            text: text
-        };
-
-
-        /*
-           HOST
-        */
-
-        if (isHost) {
-
-            addMessage(
-                myName,
-                text
-            );
-
-
-            broadcast(
-                data
-            );
-
-        }
-
-
-        /*
-           CLIENTE
-        */
-
-        else {
-
-            if (
-                !sendToHost(data)
-            ) {
-
-                addSystemMessage(
-                    "Você ainda não está conectado à sala."
-                );
-
-                return;
-            }
-        }
-
-
-        $("chatInput").value =
-            "";
-    };
-
-
-/* =====================================================
-   SAIR
-===================================================== */
-
-$("leaveBtn").onclick =
-    () => {
-
-        /*
-           Fecha chamadas.
-        */
-
-        for (
-            const call
-            of mediaCalls.values()
-        ) {
-
-            try {
-                call.close();
-            } catch {}
-        }
-
-
-        mediaCalls.clear();
-
-
-        /*
-           Para microfone.
-        */
-
-        if (micStream) {
-
-            for (
-                const track
-                of micStream.getTracks()
-            ) {
-
-                try {
-                    track.stop();
-                } catch {}
-            }
-        }
-
-
-        /*
-           Para câmera.
-        */
-
-        if (cameraStream) {
-
-            for (
-                const track
-                of cameraStream.getTracks()
-            ) {
-
-                try {
-                    track.stop();
-                } catch {}
-            }
-        }
-
-
-        /*
-           Para tela.
-        */
-
-        if (screenStream) {
-
-            for (
-                const track
-                of screenStream.getTracks()
-            ) {
-
-                try {
-                    track.stop();
-                } catch {}
-            }
-        }
-
-
-        /*
-           Fecha PeerJS.
-        */
-
-        try {
-
-            if (peer) {
-                peer.destroy();
-            }
-
-        } catch {}
-
-
-        location.reload();
-    };
-
-
-/* =====================================================
-   DEBUG
-===================================================== */
-
-console.log(
-    "%cDZcord iniciado!",
-    "font-size:20px;font-weight:bold"
-);
-
-console.log(
-    "PeerJS:",
-    typeof Peer !== "undefined"
-        ? "OK"
-        : "ERRO"
-);
-
+/* ======================= SETTINGS (status) ======================= */
+$('#settingsBtn').onclick = ()=>{
+  openModal(`
+    <h3>Status</h3>
+    <select id="mStatus">
+      <option value="online" ${me.status==='online'?'selected':''}>🟢 Online</option>
+      <option value="idle" ${me.status==='idle'?'selected':''}>🌙 Ausente</option>
+      <option value="dnd" ${me.status==='dnd'?'selected':''}>🔴 Não perturbe</option>
+    </select>
+    <div class="modal-actions">
+      <button class="cancel" onclick="window.__dz.closeModal()">Cancelar</button>
+      <button class="go" onclick="window.__dz3.saveStatus()">Salvar</button>
+    </div>
+  `);
+};
+window.__dz3 = {
+  saveStatus(){
+    me.status = $('#mStatus').value; store('dz.profile', me);
+    $('#myStat').textContent = me.status;
+    S.actions.sendHello?.({userId:me.userId, username:me.username, color:me.color, status:me.status});
+    closeModal();
+  }
+};
 </script>
-
 </body>
 </html>
