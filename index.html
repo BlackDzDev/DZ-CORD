@@ -216,7 +216,7 @@ input,textarea,select{font-family:inherit;}
   <div class="login-card">
     <div class="login-mark">📡 DZCORD</div>
     <h1 class="login-title"></h1>
-    <p class="login-sub">Escolha um nome para poder entrar no DzCord.</p>
+    <p class="login-sub">Escolha um nome para entrar no DzCord.</p>
     <input id="nameInput" maxlength="20" placeholder="Seu nome" autocomplete="off" />
     <button class="primary" id="loginBtn">Entrar</button>
     <div class="login-note"></div>
@@ -233,6 +233,7 @@ input,textarea,select{font-family:inherit;}
     <div class="sidebar-head">
       <h2 id="serverName">—</h2>
       <div class="code" id="serverCodeShow" title="Clique para copiar o código de convite">código: —</div>
+      <div class="code" id="peerCountShow" style="margin-top:2px;"></div>
     </div>
     <div class="channels" id="channelList"></div>
     <div class="userbar">
@@ -296,7 +297,7 @@ input,textarea,select{font-family:inherit;}
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { joinRoom, selfId } from 'https://esm.run/trystero';
+import { joinRoom, selfId } from 'https://esm.run/trystero/torrent';
 
 /* ======================= UTILS ======================= */
 const $ = (s,r=document)=>r.querySelector(s);
@@ -578,14 +579,18 @@ function enterServer(serverId){
     else sendMetaReq(null, [peerId]);
     if(S.inVoiceChannel) sendPresence({channelId:S.inVoiceChannel, mic:S.micOn, cam:S.camOn, screen:S.screenOn}, [peerId]);
     renderMembers();
-    $('#connText').textContent = 'conectado ('+(Object.keys(S.roster).length+1)+')';
+    const n1 = Object.keys(S.roster).length;
+    $('#connText').textContent = 'conectado ('+n1+')';
+    $('#peerCountShow').textContent = 'peers conectados: '+n1;
   });
   room.onPeerLeave((peerId)=>{
     delete S.roster[peerId];
     delete S.presence[peerId];
     delete S.streams[peerId];
     renderMembers(); renderChannelList(); renderStage(); renderCamRow();
-    $('#connText').textContent = 'conectado ('+(Object.keys(S.roster).length+1)+')';
+    const n2 = Object.keys(S.roster).length;
+    $('#connText').textContent = 'conectado ('+n2+')';
+    $('#peerCountShow').textContent = 'peers conectados: '+n2;
   });
 
   room.onPeerStream((stream, peerId, meta)=>{
@@ -599,10 +604,30 @@ function enterServer(serverId){
 
   sendHello({userId:me.userId, username:me.username, color:me.color, status:me.status});
   sendMetaReq(null);
-  setTimeout(()=>{ $('#connText').textContent='conectado'; },1200);
+
+  // Retry the sync a few times in case the first messages went out before
+  // the P2P data channel was fully ready, or peers connect a bit later.
+  let tries = 0;
+  const retryTimer = setInterval(()=>{
+    tries++;
+    if(S.serverId!==serverId || S.server?.channels?.length){ clearInterval(retryTimer); return; }
+    sendHello({userId:me.userId, username:me.username, color:me.color, status:me.status});
+    S.actions.sendMetaReq?.(null);
+    const n = Object.keys(S.roster).length;
+    $('#connText').textContent = n>0 ? ('conectado ('+n+')') : 'procurando peer…';
+    $('#peerCountShow').textContent = 'peers conectados: '+n;
+    if(tries>=20) clearInterval(retryTimer); // ~50s of retries
+  }, 2500);
 
   renderChat();
 }
+window.__dz.retrySync = function(){
+  if(!S.room) return;
+  S.actions.sendHello?.({userId:me.userId, username:me.username, color:me.color, status:me.status});
+  S.actions.sendMetaReq?.(null);
+  const n = Object.keys(S.roster).length;
+  toast(n>0 ? ('Pedindo dados a '+n+' pessoa(s)…') : 'Nenhum peer conectado ainda. Confirme o código com quem criou o servidor.');
+};
 
 function leaveServerRoom(){
   leaveVoice();
@@ -630,7 +655,13 @@ function playRemoteAudio(peerId, stream){
 function renderChannelList(){
   const c = $('#channelList'); c.innerHTML='';
   if(!S.server?.channels?.length){
-    c.innerHTML = '<div style="padding:14px;color:var(--text-low);font-size:13px;">Nenhum canal ainda.</div>';
+    const peerCount = Object.keys(S.roster).length;
+    c.innerHTML = `<div style="padding:14px;color:var(--text-low);font-size:13px;line-height:1.6;">
+      ${peerCount===0
+        ? 'Aguardando conexão com quem criou o servidor…<br>Confirme que a outra pessoa já abriu o DZcord e entrou com o mesmo código.'
+        : 'Conectado a '+peerCount+' pessoa(s), sincronizando canais…'}
+      <br><button class="header-btn" style="margin-top:10px;" onclick="window.__dz.retrySync()">🔄 Tentar sincronizar de novo</button>
+    </div>`;
   } else {
     const groups = {text:[],voice:[]};
     S.server.channels.forEach(ch=>groups[ch.type]?.push(ch));
