@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DZcord</title>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+    background:#0d0f14;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+    height:100vh;
+    overflow:hidden
+}
+
+button,input{font:inherit}
+
+button{cursor:pointer;border:0}
+
+#login{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:
+    radial-gradient(circle at top,#30375b 0,#161925 35%,#0d0f14 75%)
+}
+
+.login{
+    width:390px;
+    max-width:92%;
+    background:#181b24;
+    padding:35px;
+    border-radius:18px;
+    box-shadow:0 25px 80px #0009
+}
+
+.logo{
+    text-align:center;
+    font-size:42px;
+    font-weight:900;
+    margin-bottom:8px
+}
+
+.logo b{color:#6875ff}
+
+.desc{
+    color:#9297a8;
+    text-align:center;
+    margin-bottom:28px
+}
+
+label{
+    display:block;
+    color:#aeb3c1;
+    font-size:12px;
+    font-weight:bold;
+    margin:15px 0 7px
+}
+
+input{
+    width:100%;
+    border:1px solid #2b2f3b;
+    background:#101219;
+    color:white;
+    padding:13px;
+    border-radius:9px;
+    outline:none
+}
+
+input:focus{border-color:#6875ff}
+
+.enter{
+    width:100%;
+    margin-top:22px;
+    padding:14px;
+    border-radius:9px;
+    background:#5865f2;
+    color:white;
+    font-weight:bold
+}
+
+.enter:hover{background:#4752c4}
+
+#app{
+    display:none;
+    height:100vh
+}
+
+.sidebar{
+    width:240px;
+    background:#171920;
+    display:flex;
+    flex-direction:column;
+    flex-shrink:0
+}
+
+.server{
+    height:60px;
+    display:flex;
+    align-items:center;
+    padding:0 18px;
+    border-bottom:1px solid #292c35;
+    font-size:18px;
+    font-weight:bold
+}
+
+.server span{color:#6875ff}
+
+.title{
+    color:#73798a;
+    font-size:11px;
+    font-weight:bold;
+    padding:20px 14px 7px
+}
+
+.channel{
+    padding:10px 14px;
+    margin:2px 8px;
+    border-radius:7px;
+    color:#9ba0ad
+}
+
+.channel.active{
+    background:#303441;
+    color:white
+}
+
+.channel:hover{background:#292c35}
+
+.me{
+    margin-top:auto;
+    padding:12px;
+    background:#111319;
+    display:flex;
+    align-items:center;
+    gap:10px
+}
+
+.avatar{
+    width:38px;
+    height:38px;
+    background:#5865f2;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold
+}
+
+.me-info{overflow:hidden}
+.me-info strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.me-info small{color:#55d98a}
+
+.main{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column
+}
+
+.top{
+    height:60px;
+    border-bottom:1px solid #292c35;
+    display:flex;
+    align-items:center;
+    padding:0 20px;
+    font-weight:bold
+}
+
+.room-code{
+    margin-left:auto;
+    color:#858b9a;
+    font-size:12px
+}
+
+.workspace{
+    flex:1;
+    display:flex;
+    min-height:0
+}
+
+.center{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column
+}
+
+.videos{
+    flex:1;
+    padding:14px;
+    overflow:auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:12px
+}
+
+.video-card{
+    position:relative;
+    min-height:220px;
+    background:#171a21;
+    border-radius:12px;
+    overflow:hidden;
+    border:1px solid #242832
+}
+
+.video-card video{
+    width:100%;
+    height:100%;
+    min-height:220px;
+    display:block;
+    object-fit:contain;
+    background:#08090c
+}
+
+.video-label{
+    position:absolute;
+    left:10px;
+    bottom:10px;
+    background:#000b;
+    padding:7px 10px;
+    border-radius:7px;
+    font-size:13px
+}
+
+.chat{
+    height:210px;
+    border-top:1px solid #292c35;
+    display:flex;
+    flex-direction:column
+}
+
+.messages{
+    flex:1;
+    overflow:auto;
+    padding:12px 18px
+}
+
+.message{
+    margin-bottom:8px;
+    line-height:1.4
+}
+
+.message strong{margin-right:8px}
+.message span{color:#c1c5d0}
+
+.chatbar{
+    display:flex;
+    gap:8px;
+    padding:10px
+}
+
+.chatbar input{flex:1}
+
+.send{
+    width:75px;
+    border-radius:8px;
+    background:#5865f2;
+    color:#fff
+}
+
+.members{
+    width:210px;
+    background:#171920;
+    padding:18px 10px;
+    overflow:auto
+}
+
+.member-title{
+    color:#777d8d;
+    font-size:11px;
+    font-weight:bold;
+    margin-bottom:10px
+}
+
+.member{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:8px;
+    border-radius:7px
+}
+
+.member:hover{background:#292c35}
+
+.member-avatar{
+    width:32px;
+    height:32px;
+    background:#5865f2;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px
+}
+
+.online{
+    color:#55d98a;
+    font-size:10px
+}
+
+.controls{
+    height:64px;
+    background:#111319;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px
+}
+
+.control{
+    padding:11px 15px;
+    border-radius:8px;
+    background:#292d37;
+    color:#fff
+}
+
+.control:hover{background:#393e4b}
+
+.control.active{background:#5865f2}
+
+.leave{background:#ed4245}
+
+.leave:hover{background:#c5373b}
+
+.empty{
+    grid-column:1/-1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#6f7584;
+    text-align:center
+}
+
+@media(max-width:800px){
+    .sidebar{width:70px}
+    .server{
+        justify-content:center;
+        font-size:0
+    }
+    .server span{font-size:22px}
+    .title{font-size:0;text-align:center}
+    .channel{
+        font-size:0;
+        text-align:center
+    }
+    .members{display:none}
+    .room-code{display:none}
+}
+
+@media(max-width:550px){
+    .videos{
+        grid-template-columns:1fr
+    }
+
+    .chat{height:180px}
+
+    .control{
+        padding:10px;
+        font-size:12px
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="login">
+
+    <div class="login">
+
+        <div class="logo">
+            DZ<span>cord</span>
+        </div>
+
+        <div class="desc">
+            Converse e compartilhe sua tela com seus amigos.
+        </div>
+
+        <label>SEU NOME</label>
+
+        <input
+            id="name"
+            maxlength="25"
+            placeholder="Ex: BlackDz"
+        >
+
+        <label>CÓDIGO DA SALA</label>
+
+        <input
+            id="room"
+            maxlength="30"
+            placeholder="Ex: minha-sala"
+        >
+
+        <button class="enter" onclick="joinRoom()">
+            Entrar no DZcord
+        </button>
+
+    </div>
+
+</div>
+
+
+<div id="app">
+
+    <aside class="sidebar">
+
+        <div class="server">
+            🟣 DZ<span>cord</span>
+        </div>
+
+        <div class="title">CANAIS</div>
+
+        <div class="channel active">💬 Geral</div>
+        <div class="channel">🔊 Voz</div>
+        <div class="channel">🖥️ Transmissões</div>
+
+        <div class="me">
+
+            <div class="avatar" id="myAvatar">?</div>
+
+            <div class="me-info">
+                <strong id="myName">Usuário</strong>
+                <small>● Online</small>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <main class="main">
+
+        <div class="top">
+
+            💬 Geral
+
+            <div class="room-code">
+                Sala: <b id="roomDisplay"></b>
+            </div>
+
+        </div>
+
+
+        <div class="workspace">
+
+            <section class="center">
+
+                <div class="videos" id="videos">
+
+                    <div class="empty" id="empty">
+                        <div>
+                            <div style="font-size:40px">🖥️</div>
+                            <br>
+                            Ninguém está transmitindo.
+                            <br>
+                            Clique em <b>Transmitir</b> para começar.
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="chat">
+
+                    <div class="messages" id="messages"></div>
+
+                    <div class="chatbar">
+
+                        <input
+                            id="message"
+                            placeholder="Digite uma mensagem..."
+                            maxlength="500"
+                            onkeydown="messageKey(event)"
+                        >
+
+                        <button class="send" onclick="sendMessage()">
+                            Enviar
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="controls">
+
+                    <button
+                        id="mic"
+                        class="control"
+                        onclick="toggleMic()"
+                    >
+                        🔇 Microfone
+                    </button>
+
+                    <button
+                        id="camera"
+                        class="control"
+                        onclick="toggleCamera()"
+                    >
+                        📷 Câmera
+                    </button>
+
+                    <button
+                        id="screen"
+                        class="control"
+                        onclick="toggleScreen()"
+                    >
+                        🖥️ Transmitir
+                    </button>
+
+                    <button
+                        class="control leave"
+                        onclick="leaveRoom()"
+                    >
+                        📞 Sair
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <aside class="members">
+
+                <div class="member-title">
+                    PARTICIPANTES
+                </div>
+
+                <div id="members"></div>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+/* =========================================
+   CONFIGURAÇÃO
+========================================= */
+
+let peer = null;
+let myName = "";
+let roomId = "";
+
+let localStream = null;
+let screenStream = null;
+
+let micOn = false;
+let cameraOn = false;
+let screenOn = false;
+
+const calls = new Map();
+const connections = new Map();
+
+
+/* =========================================
+   ENTRAR NA SALA
+========================================= */
+
+function joinRoom(){
+
+    myName =
+        document.getElementById("name")
+        .value.trim();
+
+    roomId =
+        document.getElementById("room")
+        .value.trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g,"");
+
+    if(!myName){
+        alert("Digite seu nome.");
+        return;
+    }
+
+    if(!roomId){
+        alert("Digite o código da sala.");
+        return;
+    }
+
+    /*
+      Prefixo próprio para evitar colisões
+      com outros PeerJS applications.
+    */
+
+    const peerId =
+        "dzcord-" +
+        roomId +
+        "-" +
+        Math.random()
+        .toString(36)
+        .substring(2,10);
+
+    peer = new Peer(peerId,{
+        debug:0
+    });
+
+    peer.on("open",id=>{
+
+        document.getElementById("login")
+            .style.display="none";
+
+        document.getElementById("app")
+            .style.display="flex";
+
+        document.getElementById("myName")
+            .textContent=myName;
+
+        document.getElementById("myAvatar")
+            .textContent=myName
+            .charAt(0)
+            .toUpperCase();
+
+        document.getElementById("roomDisplay")
+            .textContent=roomId;
+
+        addMember(
+            id,
+            myName
+        );
+
+        addMessage(
+            "Sistema",
+            "Você entrou na sala " + roomId
+        );
+
+        /*
+          Descobre usuários através do
+          mecanismo simples de anúncio.
+        */
+
+        announcePresence();
+
+    });
+
+
+    peer.on("connection",conn=>{
+
+        setupConnection(conn);
+
+    });
+
+
+    peer.on("call",call=>{
+
+        handleIncomingCall(call);
+
+    });
+
+
+    peer.on("error",err=>{
+
+        console.error(err);
+
+        if(err.type==="peer-unavailable"){
+            return;
+        }
+
+        addMessage(
+            "Sistema",
+            "Erro de conexão: " + err.type
+        );
+
+    });
+
+}
+
+
+/* =========================================
+   PRESENÇA
+========================================= */
+
+const presenceKey =
+    "dzcord-presence-";
+
+function announcePresence(){
+
+    /*
+      localStorage não é compartilhado entre
+      computadores, então ele serve apenas
+      como mecanismo auxiliar na mesma origem.
+
+      A conexão WebRTC propriamente dita
+      acontece pelo PeerJS.
+    */
+
+    addMessage(
+        "Sistema",
+        "Compartilhe o mesmo link e código da sala com seus amigos."
+    );
+
+}
+
+
+/* =========================================
+   CONEXÃO
+========================================= */
+
+function setupConnection(conn){
+
+    connections.set(
+        conn.peer,
+        conn
+    );
+
+    conn.on("data",data=>{
+
+        if(!data) return;
+
+        if(data.type==="chat"){
+
+            addMessage(
+                data.name,
+                data.message
+            );
+
+        }
+
+        if(data.type==="hello"){
+
+            addMember(
+                conn.peer,
+                data.name
+            );
+
+            /*
+              Responde quem somos.
+            */
+
+            conn.send({
+                type:"hello",
+                name:myName
+            });
+
+        }
+
+    });
+
+    conn.on("open",()=>{
+
+        conn.send({
+            type:"hello",
+            name:myName
+        });
+
+    });
+
+    conn.on("close",()=>{
+
+        connections.delete(conn.peer);
+
+        removeMember(conn.peer);
+
+    });
+
+}
+
+
+/* =========================================
+   MICROFONE
+========================================= */
+
+async function toggleMic(){
+
+    try{
+
+        if(!localStream){
+
+            localStream =
+                await navigator.mediaDevices
+                .getUserMedia({
+                    audio:true,
+                    video:true
+                });
+
+            createLocalVideo();
+
+        }
+
+        const track =
+            localStream
+            .getAudioTracks()[0];
+
+        if(!track){
+            alert("Microfone não encontrado.");
+            return;
+        }
+
+        micOn=!micOn;
+
+        track.enabled=micOn;
+
+        document.getElementById("mic")
+            .classList.toggle(
+                "active",
+                micOn
+            );
+
+        document.getElementById("mic")
+            .textContent =
+            micOn
+            ? "🎤 Microfone"
+            : "🔇 Microfone";
+
+        updateCalls();
+
+    }catch(e){
+
+        alert(
+            "Não foi possível acessar o microfone."
+        );
+
+        console.error(e);
+
+    }
+
+}
+
+
+/* =========================================
+   CÂMERA
+========================================= */
+
+async function toggleCamera(){
+
+    try{
+
+        if(!localStream){
+
+            localStream =
+                await navigator.mediaDevices
+                .getUserMedia({
+                    audio:true,
+                    video:true
+                });
+
+            createLocalVideo();
+
+        }
+
+        const track =
+            localStream
+            .getVideoTracks()[0];
+
+        if(!track){
+            alert("Câmera não encontrada.");
+            return;
+        }
+
+        cameraOn=!cameraOn;
+
+        track.enabled=cameraOn;
+
+        document.getElementById("camera")
+            .classList.toggle(
+                "active",
+                cameraOn
+            );
+
+        document.getElementById("camera")
+            .textContent =
+            cameraOn
+            ? "📹 Câmera"
+            : "📷 Câmera";
+
+        updateCalls();
+
+    }catch(e){
+
+        alert(
+            "Não foi possível acessar a câmera."
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   TRANSMISSÃO DE TELA
+========================================= */
+
+async function toggleScreen(){
+
+    if(screenOn){
+
+        stopScreen();
+
+        return;
+    }
+
+    try{
+
+        screenStream =
+            await navigator.mediaDevices
+            .getDisplayMedia({
+                video:{
+                    cursor:"always"
+                },
+                audio:true
+            });
+
+        screenOn=true;
+
+        document.getElementById("screen")
+            .classList.add("active");
+
+        document.getElementById("screen")
+            .textContent="⏹️ Parar transmissão";
+
+        /*
+          A transmissão de tela passa a ser
+          enviada pelas conexões WebRTC.
+        */
+
+        replaceOutgoingVideoTrack(
+            screenStream
+            .getVideoTracks()[0]
+        );
+
+        createOrUpdateScreenVideo();
+
+        screenStream
+            .getVideoTracks()[0]
+            .addEventListener(
+                "ended",
+                stopScreen
+            );
+
+        addMessage(
+            "Sistema",
+            myName +
+            " começou a transmitir a tela."
+        );
+
+    }catch(e){
+
+        console.log(e);
+
+    }
+
+}
+
+
+/* =========================================
+   PARAR TELA
+========================================= */
+
+function stopScreen(){
+
+    if(!screenOn) return;
+
+    screenOn=false;
+
+    if(screenStream){
+
+        screenStream
+            .getTracks()
+            .forEach(t=>t.stop());
+
+        screenStream=null;
+
+    }
+
+    document.getElementById("screen")
+        .classList.remove("active");
+
+    document.getElementById("screen")
+        .textContent="🖥️ Transmitir";
+
+    const video =
+        document.getElementById(
+            "localVideo"
+        );
+
+    if(video && localStream){
+
+        video.srcObject=localStream;
+
+    }
+
+    if(localStream){
+
+        const track =
+            localStream
+            .getVideoTracks()[0];
+
+        if(track){
+
+            replaceOutgoingVideoTrack(
+                track
+            );
+
+        }
+
+    }
+
+    addMessage(
+        "Sistema",
+        myName +
+        " parou a transmissão."
+    );
+
+}
+
+
+/* =========================================
+   VIDEO LOCAL
+========================================= */
+
+function createLocalVideo(){
+
+    let card =
+        document.getElementById(
+            "localCard"
+        );
+
+    if(card) return;
+
+    removeEmpty();
+
+    card =
+        document.createElement("div");
+
+    card.className="video-card";
+    card.id="localCard";
+
+    card.innerHTML=`
+        <video id="localVideo"
+               autoplay
+               muted
+               playsinline></video>
+
+        <div class="video-label">
+            ${escapeHTML(myName)}
+        </div>
+    `;
+
+    document.getElementById("videos")
+        .appendChild(card);
+
+    document.getElementById("localVideo")
+        .srcObject=localStream;
+
+}
+
+
+/* =========================================
+   VIDEO DA TELA
+========================================= */
+
+function createOrUpdateScreenVideo(){
+
+    let card =
+        document.getElementById(
+            "screenCard"
+        );
+
+    if(!card){
+
+        removeEmpty();
+
+        card =
+            document.createElement("div");
+
+        card.className="video-card";
+        card.id="screenCard";
+
+        card.innerHTML=`
+            <video id="screenVideo"
+                   autoplay
+                   muted
+                   playsinline></video>
+
+            <div class="video-label">
+                🖥️ ${escapeHTML(myName)}
+            </div>
+        `;
+
+        document.getElementById("videos")
+            .appendChild(card);
+
+    }
+
+    document.getElementById("screenVideo")
+        .srcObject=screenStream;
+
+}
+
+
+/* =========================================
+   CHAMADAS WEBRTC
+========================================= */
+
+function callPeer(peerId){
+
+    if(!peer) return;
+
+    if(calls.has(peerId)){
+        return;
+    }
+
+    const stream =
+        screenOn
+        ? screenStream
+        : localStream;
+
+    if(!stream){
+        return;
+    }
+
+    const call =
+        peer.call(
+            peerId,
+            stream,
+            {
+                metadata:{
+                    name:myName,
+                    type:screenOn
+                    ? "screen"
+                    : "camera"
+                }
+            }
+        );
+
+    handleCall(
+        call,
+        peerId
+    );
+
+}
+
+
+function handleIncomingCall(call){
+
+    const name =
+        call.metadata &&
+        call.metadata.name
+        ? call.metadata.name
+        : "Usuário";
+
+    const stream =
+        screenOn
+        ? screenStream
+        : localStream;
+
+    /*
+      Se ainda não temos mídia local,
+      solicitamos áudio/câmera.
+    */
+
+    if(!stream){
+
+        navigator.mediaDevices
+        .getUserMedia({
+            audio:true,
+            video:true
+        })
+        .then(s=>{
+
+            localStream=s;
+
+            createLocalVideo();
+
+            call.answer(s);
+
+            handleCall(
+                call,
+                call.peer
+            );
+
+        })
+        .catch(()=>{
+
+            call.answer();
+
+            handleCall(
+                call,
+                call.peer
+            );
+
+        });
+
+    }else{
+
+        call.answer(stream);
+
+        handleCall(
+            call,
+            call.peer
+        );
+
+    }
+
+    addMember(
+        call.peer,
+        name
+    );
+
+}
+
+
+function handleCall(call,peerId){
+
+    calls.set(
+        peerId,
+        call
+    );
+
+    call.on("stream",remoteStream=>{
+
+        createRemoteVideo(
+            peerId,
+            remoteStream,
+            call.metadata
+        );
+
+    });
+
+    call.on("close",()=>{
+
+        calls.delete(peerId);
+
+        removeRemoteVideo(peerId);
+
+    });
+
+    call.on("error",err=>{
+
+        console.error(
+            "WebRTC:",
+            err
+        );
+
+    });
+
+}
+
+
+/* =========================================
+   ENVIAR NOVA MÍDIA
+========================================= */
+
+function updateCalls(){
+
+    /*
+      Para uma implementação simples,
+      as chamadas existentes continuam ativas.
+    */
+
+}
+
+
+/* =========================================
+   TROCAR VIDEO DA CHAMADA
+========================================= */
+
+function replaceOutgoingVideoTrack(track){
+
+    calls.forEach(call=>{
+
+        const sender =
+            call.peerConnection
+            ?.getSenders()
+            ?.find(
+                s=>s.track &&
+                s.track.kind==="video"
+            );
+
+        if(sender){
+
+            sender.replaceTrack(track);
+
+        }
+
+    });
+
+}
+
+
+/* =========================================
+   VIDEO REMOTO
+========================================= */
+
+function createRemoteVideo(
+    peerId,
+    stream,
+    metadata
+){
+
+    removeEmpty();
+
+    let card =
+        document.getElementById(
+            "remote-"+peerId
+        );
+
+    if(!card){
+
+        card =
+            document.createElement("div");
+
+        card.className="video-card";
+
+        card.id =
+            "remote-"+peerId;
+
+        const name =
+            metadata &&
+            metadata.name
+            ? metadata.name
+            : "Usuário";
+
+        card.innerHTML=`
+            <video autoplay playsinline></video>
+            <div class="video-label">
+                🖥️ ${escapeHTML(name)}
+            </div>
+        `;
+
+        document.getElementById("videos")
+            .appendChild(card);
+
+    }
+
+    const video =
+        card.querySelector("video");
+
+    video.srcObject=stream;
+
+}
+
+
+/* =========================================
+   MEMBROS
+========================================= */
+
+function addMember(id,name){
+
+    if(document.getElementById("member-"+id)){
+        return;
+    }
+
+    const div =
+        document.createElement("div");
+
+    div.className="member";
+
+    div.id="member-"+id;
+
+    div.innerHTML=`
+        <div class="member-avatar">
+            ${escapeHTML(
+                name.charAt(0)
+                .toUpperCase()
+            )}
+        </div>
+
+        <div>
+            <div>
+                ${escapeHTML(name)}
+            </div>
+
+            <div class="online">
+                ● Online
+            </div>
+        </div>
+    `;
+
+    document.getElementById("members")
+        .appendChild(div);
+
+}
+
+
+/* =========================================
+   REMOVER MEMBRO
+========================================= */
+
+function removeMember(id){
+
+    const element =
+        document.getElementById(
+            "member-"+id
+        );
+
+    if(element){
+        element.remove();
+    }
+
+    removeRemoteVideo(id);
+
+}
+
+
+/* =========================================
+   REMOVER VIDEO
+========================================= */
+
+function removeRemoteVideo(id){
+
+    const card =
+        document.getElementById(
+            "remote-"+id
+        );
+
+    if(card){
+        card.remove();
+    }
+
+    checkEmpty();
+
+}
+
+
+/* =========================================
+   CHAT
+========================================= */
+
+function sendMessage(){
+
+    const input =
+        document.getElementById(
+            "message"
+        );
+
+    const text =
+        input.value.trim();
+
+    if(!text) return;
+
+    addMessage(
+        myName,
+        text
+    );
+
+    connections.forEach(conn=>{
+
+        if(conn.open){
+
+            conn.send({
+                type:"chat",
+                name:myName,
+                message:text
+            });
+
+        }
+
+    });
+
+    input.value="";
+
+}
+
+
+function messageKey(e){
+
+    if(e.key==="Enter"){
+        sendMessage();
+    }
+
+}
+
+
+function addMessage(name,text){
+
+    const box =
+        document.getElementById(
+            "messages"
+        );
+
+    const div =
+        document.createElement("div");
+
+    div.className="message";
+
+    div.innerHTML=
+        "<strong>"+
+        escapeHTML(name)+
+        "</strong>"+
+        "<span>"+
+        escapeHTML(text)+
+        "</span>";
+
+    box.appendChild(div);
+
+    box.scrollTop=box.scrollHeight;
+
+}
+
+
+/* =========================================
+   UI
+========================================= */
+
+function removeEmpty(){
+
+    const empty =
+        document.getElementById("empty");
+
+    if(empty){
+        empty.remove();
+    }
+
+}
+
+
+function checkEmpty(){
+
+    const videos =
+        document.getElementById("videos");
+
+    if(
+        videos.children.length===0
+    ){
+
+        const empty =
+            document.createElement("div");
+
+        empty.className="empty";
+        empty.id="empty";
+
+        empty.innerHTML=`
+            <div>
+                <div style="font-size:40px">🖥️</div>
+                <br>
+                Ninguém está transmitindo.
+            </div>
+        `;
+
+        videos.appendChild(empty);
+
+    }
+
+}
+
+
+/* =========================================
+   SAIR
+========================================= */
+
+function leaveRoom(){
+
+    stopScreen();
+
+    if(localStream){
+
+        localStream
+            .getTracks()
+            .forEach(
+                t=>t.stop()
+            );
+
+    }
+
+    calls.forEach(call=>{
+        call.close();
+    });
+
+    connections.forEach(conn=>{
+        conn.close();
+    });
+
+    if(peer){
+        peer.destroy();
+    }
+
+    location.reload();
+
+}
+
+
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+function escapeHTML(text){
+
+    const div =
+        document.createElement("div");
+
+    div.textContent=text;
+
+    return div.innerHTML;
+
+}
+
+</script>
+
+</body>
+</html>
