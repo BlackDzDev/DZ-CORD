@@ -1,542 +1,362 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DZcord</title>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-
-body{
-    background:#0d0f14;
-    color:#fff;
-    font-family:Arial,Helvetica,sans-serif;
-    height:100vh;
-    overflow:hidden
+* {
+    box-sizing: border-box;
 }
 
-button,input{font:inherit}
-
-button{cursor:pointer;border:0}
-
-#login{
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:
-    radial-gradient(circle at top,#30375b 0,#161925 35%,#0d0f14 75%)
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111318;
+    color: white;
+    overflow: hidden;
 }
 
-.login{
-    width:390px;
-    max-width:92%;
-    background:#181b24;
-    padding:35px;
-    border-radius:18px;
-    box-shadow:0 25px 80px #0009
+button,
+input {
+    font-family: inherit;
 }
 
-.logo{
-    text-align:center;
-    font-size:42px;
-    font-weight:900;
-    margin-bottom:8px
+button {
+    border: 0;
+    cursor: pointer;
 }
 
-.logo b{color:#6875ff}
-
-.desc{
-    color:#9297a8;
-    text-align:center;
-    margin-bottom:28px
+#login {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0d0f14;
 }
 
-label{
-    display:block;
-    color:#aeb3c1;
-    font-size:12px;
-    font-weight:bold;
-    margin:15px 0 7px
+.login-box {
+    width: 360px;
+    padding: 30px;
+    background: #181b22;
+    border-radius: 15px;
+    box-shadow: 0 15px 50px #0008;
 }
 
-input{
-    width:100%;
-    border:1px solid #2b2f3b;
-    background:#101219;
-    color:white;
-    padding:13px;
-    border-radius:9px;
-    outline:none
+.logo {
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 25px;
 }
 
-input:focus{border-color:#6875ff}
-
-.enter{
-    width:100%;
-    margin-top:22px;
-    padding:14px;
-    border-radius:9px;
-    background:#5865f2;
-    color:white;
-    font-weight:bold
+.login-box input {
+    width: 100%;
+    padding: 13px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border: 1px solid #30343d;
+    background: #101217;
+    color: white;
+    outline: none;
 }
 
-.enter:hover{background:#4752c4}
-
-#app{
-    display:none;
-    height:100vh
+.login-box button {
+    width: 100%;
+    padding: 13px;
+    border-radius: 8px;
+    background: #5865f2;
+    color: white;
+    font-weight: bold;
 }
 
-.sidebar{
-    width:240px;
-    background:#171920;
-    display:flex;
-    flex-direction:column;
-    flex-shrink:0
+#app {
+    display: none;
+    width: 100vw;
+    height: 100vh;
 }
 
-.server{
-    height:60px;
-    display:flex;
-    align-items:center;
-    padding:0 18px;
-    border-bottom:1px solid #292c35;
-    font-size:18px;
-    font-weight:bold
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background: #181b22;
+    border-right: 1px solid #292d36;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 18px;
 }
 
-.server span{color:#6875ff}
-
-.title{
-    color:#73798a;
-    font-size:11px;
-    font-weight:bold;
-    padding:20px 14px 7px
+.server-name {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
 }
 
-.channel{
-    padding:10px 14px;
-    margin:2px 8px;
-    border-radius:7px;
-    color:#9ba0ad
+.room-info {
+    background: #101217;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
-.channel.active{
-    background:#303441;
-    color:white
+.room-info small {
+    color: #9299a7;
 }
 
-.channel:hover{background:#292c35}
-
-.me{
-    margin-top:auto;
-    padding:12px;
-    background:#111319;
-    display:flex;
-    align-items:center;
-    gap:10px
+#participants {
+    margin-top: 10px;
 }
 
-.avatar{
-    width:38px;
-    height:38px;
-    background:#5865f2;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:bold
+.participant {
+    padding: 8px;
+    color: #d7d9df;
+    border-radius: 6px;
 }
 
-.me-info{overflow:hidden}
-.me-info strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.me-info small{color:#55d98a}
-
-.main{
-    flex:1;
-    min-width:0;
-    display:flex;
-    flex-direction:column
+.participant:hover {
+    background: #252933;
 }
 
-.top{
-    height:60px;
-    border-bottom:1px solid #292c35;
-    display:flex;
-    align-items:center;
-    padding:0 20px;
-    font-weight:bold
+.main {
+    margin-left: 240px;
+    width: calc(100vw - 240px);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.room-code{
-    margin-left:auto;
-    color:#858b9a;
-    font-size:12px
+.header {
+    height: 55px;
+    background: #181b22;
+    border-bottom: 1px solid #292d36;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    font-weight: bold;
 }
 
-.workspace{
-    flex:1;
-    display:flex;
-    min-height:0
+#status {
+    margin-left: auto;
+    font-size: 13px;
+    color: #8f96a3;
 }
 
-.center{
-    flex:1;
-    min-width:0;
-    display:flex;
-    flex-direction:column
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
 }
 
-.videos{
-    flex:1;
-    padding:14px;
-    overflow:auto;
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-    gap:12px
+#messages {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.video-card{
-    position:relative;
-    min-height:220px;
-    background:#171a21;
-    border-radius:12px;
-    overflow:hidden;
-    border:1px solid #242832
+.message {
+    background: #1b1e26;
+    padding: 9px 12px;
+    border-radius: 8px;
+    max-width: 800px;
 }
 
-.video-card video{
-    width:100%;
-    height:100%;
-    min-height:220px;
-    display:block;
-    object-fit:contain;
-    background:#08090c
+.message .name {
+    color: #7289ff;
+    font-weight: bold;
+    margin-right: 7px;
 }
 
-.video-label{
-    position:absolute;
-    left:10px;
-    bottom:10px;
-    background:#000b;
-    padding:7px 10px;
-    border-radius:7px;
-    font-size:13px
+.system {
+    color: #9097a5;
+    font-style: italic;
 }
 
-.chat{
-    height:210px;
-    border-top:1px solid #292c35;
-    display:flex;
-    flex-direction:column
+#videos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
 }
 
-.messages{
-    flex:1;
-    overflow:auto;
-    padding:12px 18px
+.video-box {
+    position: relative;
+    background: #08090c;
+    border-radius: 10px;
+    overflow: hidden;
+    min-height: 180px;
 }
 
-.message{
-    margin-bottom:8px;
-    line-height:1.4
+.video-box video {
+    width: 100%;
+    height: 100%;
+    min-height: 180px;
+    object-fit: contain;
+    background: #08090c;
 }
 
-.message strong{margin-right:8px}
-.message span{color:#c1c5d0}
-
-.chatbar{
-    display:flex;
-    gap:8px;
-    padding:10px
+.video-name {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    background: #000b;
+    font-size: 13px;
 }
 
-.chatbar input{flex:1}
-
-.send{
-    width:75px;
-    border-radius:8px;
-    background:#5865f2;
-    color:#fff
+.screen-badge {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: #ed4245;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 12px;
 }
 
-.members{
-    width:210px;
-    background:#171920;
-    padding:18px 10px;
-    overflow:auto
+.composer {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    background: #181b22;
+    border-top: 1px solid #292d36;
 }
 
-.member-title{
-    color:#777d8d;
-    font-size:11px;
-    font-weight:bold;
-    margin-bottom:10px
+.composer input {
+    flex: 1;
+    padding: 12px;
+    background: #101217;
+    border: 1px solid #30343d;
+    color: white;
+    border-radius: 8px;
+    outline: none;
 }
 
-.member{
-    display:flex;
-    align-items:center;
-    gap:9px;
-    padding:8px;
-    border-radius:7px
+.composer button,
+.controls button {
+    padding: 11px 14px;
+    border-radius: 8px;
+    background: #303540;
+    color: white;
 }
 
-.member:hover{background:#292c35}
-
-.member-avatar{
-    width:32px;
-    height:32px;
-    background:#5865f2;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:12px
+.composer button:hover,
+.controls button:hover {
+    background: #404653;
 }
 
-.online{
-    color:#55d98a;
-    font-size:10px
+.controls {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #111318;
+    border-top: 1px solid #292d36;
 }
 
-.controls{
-    height:64px;
-    background:#111319;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:9px
+.controls button.active {
+    background: #5865f2;
 }
 
-.control{
-    padding:11px 15px;
-    border-radius:8px;
-    background:#292d37;
-    color:#fff
+.controls button.danger {
+    background: #ed4245;
 }
 
-.control:hover{background:#393e4b}
-
-.control.active{background:#5865f2}
-
-.leave{background:#ed4245}
-
-.leave:hover{background:#c5373b}
-
-.empty{
-    grid-column:1/-1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#6f7584;
-    text-align:center
-}
-
-@media(max-width:800px){
-    .sidebar{width:70px}
-    .server{
-        justify-content:center;
-        font-size:0
-    }
-    .server span{font-size:22px}
-    .title{font-size:0;text-align:center}
-    .channel{
-        font-size:0;
-        text-align:center
-    }
-    .members{display:none}
-    .room-code{display:none}
-}
-
-@media(max-width:550px){
-    .videos{
-        grid-template-columns:1fr
-    }
-
-    .chat{height:180px}
-
-    .control{
-        padding:10px;
-        font-size:12px
-    }
+#remoteAudio {
+    display: none;
 }
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
 <div id="login">
+    <div class="login-box">
+        <div class="logo">⚡ DZcord</div>
 
-    <div class="login">
+        <input id="nameInput"
+               placeholder="Seu nome"
+               maxlength="30">
 
-        <div class="logo">
-            DZ<span>cord</span>
-        </div>
+        <input id="roomInput"
+               placeholder="Nome da sala"
+               maxlength="40">
 
-        <div class="desc">
-            Converse e compartilhe sua tela com seus amigos.
-        </div>
-
-        <label>SEU NOME</label>
-
-        <input
-            id="name"
-            maxlength="25"
-            placeholder="Ex: BlackDz"
-        >
-
-        <label>CÓDIGO DA SALA</label>
-
-        <input
-            id="room"
-            maxlength="30"
-            placeholder="Ex: minha-sala"
-        >
-
-        <button class="enter" onclick="joinRoom()">
-            Entrar no DZcord
-        </button>
-
+        <button id="joinBtn">Entrar na sala</button>
     </div>
-
 </div>
 
-
+<!-- APP -->
 <div id="app">
 
     <aside class="sidebar">
+        <div class="server-name">⚡ DZcord</div>
 
-        <div class="server">
-            🟣 DZ<span>cord</span>
+        <div class="room-info">
+            <small>SALA</small>
+            <div id="roomName"></div>
         </div>
 
-        <div class="title">CANAIS</div>
-
-        <div class="channel active">💬 Geral</div>
-        <div class="channel">🔊 Voz</div>
-        <div class="channel">🖥️ Transmissões</div>
-
-        <div class="me">
-
-            <div class="avatar" id="myAvatar">?</div>
-
-            <div class="me-info">
-                <strong id="myName">Usuário</strong>
-                <small>● Online</small>
-            </div>
-
+        <div>
+            <small style="color:#9299a7;">PARTICIPANTES</small>
+            <div id="participants"></div>
         </div>
-
     </aside>
-
 
     <main class="main">
 
-        <div class="top">
+        <div class="header">
+            # geral
+            <span id="status">Conectando...</span>
+        </div>
 
-            💬 Geral
+        <div class="content">
 
-            <div class="room-code">
-                Sala: <b id="roomDisplay"></b>
-            </div>
+            <div id="videos"></div>
+
+            <div id="messages"></div>
 
         </div>
 
+        <div class="controls">
 
-        <div class="workspace">
+            <button id="micBtn">
+                🎙️ Microfone
+            </button>
 
-            <section class="center">
+            <button id="cameraBtn">
+                📷 Câmera
+            </button>
 
-                <div class="videos" id="videos">
+            <button id="screenBtn">
+                🖥️ Transmitir tela
+            </button>
 
-                    <div class="empty" id="empty">
-                        <div>
-                            <div style="font-size:40px">🖥️</div>
-                            <br>
-                            Ninguém está transmitindo.
-                            <br>
-                            Clique em <b>Transmitir</b> para começar.
-                        </div>
-                    </div>
+            <button id="stopScreenBtn"
+                    class="danger"
+                    style="display:none;">
+                ⛔ Parar transmissão
+            </button>
 
-                </div>
+        </div>
 
+        <div class="composer">
 
-                <div class="chat">
+            <input id="messageInput"
+                   placeholder="Enviar mensagem..."
+                   maxlength="500">
 
-                    <div class="messages" id="messages"></div>
-
-                    <div class="chatbar">
-
-                        <input
-                            id="message"
-                            placeholder="Digite uma mensagem..."
-                            maxlength="500"
-                            onkeydown="messageKey(event)"
-                        >
-
-                        <button class="send" onclick="sendMessage()">
-                            Enviar
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <div class="controls">
-
-                    <button
-                        id="mic"
-                        class="control"
-                        onclick="toggleMic()"
-                    >
-                        🔇 Microfone
-                    </button>
-
-                    <button
-                        id="camera"
-                        class="control"
-                        onclick="toggleCamera()"
-                    >
-                        📷 Câmera
-                    </button>
-
-                    <button
-                        id="screen"
-                        class="control"
-                        onclick="toggleScreen()"
-                    >
-                        🖥️ Transmitir
-                    </button>
-
-                    <button
-                        class="control leave"
-                        onclick="leaveRoom()"
-                    >
-                        📞 Sair
-                    </button>
-
-                </div>
-
-            </section>
-
-
-            <aside class="members">
-
-                <div class="member-title">
-                    PARTICIPANTES
-                </div>
-
-                <div id="members"></div>
-
-            </aside>
+            <button id="sendBtn">
+                Enviar
+            </button>
 
         </div>
 
@@ -544,134 +364,1020 @@ input:focus{border-color:#6875ff}
 
 </div>
 
-
 <script>
-/* =========================================
-   CONFIGURAÇÃO
-========================================= */
+
+/* =========================================================
+   ESTADO
+========================================================= */
 
 let peer = null;
-let myName = "";
-let roomId = "";
 
-let localStream = null;
+let myPeerId = null;
+let myName = "";
+let room = "";
+
+let isHost = false;
+
+let hostPeerId = null;
+let hostConnection = null;
+
+const participants = new Map();
+const dataConnections = new Map();
+const mediaCalls = new Map();
+
+let micStream = null;
+let cameraStream = null;
 let screenStream = null;
 
-let micOn = false;
-let cameraOn = false;
-let screenOn = false;
-
-const calls = new Map();
-const connections = new Map();
+let micEnabled = false;
+let cameraEnabled = false;
+let screenEnabled = false;
 
 
-/* =========================================
-   ENTRAR NA SALA
-========================================= */
+/* =========================================================
+   ELEMENTOS
+========================================================= */
 
-function joinRoom(){
+const login = document.getElementById("login");
+const app = document.getElementById("app");
 
-    myName =
-        document.getElementById("name")
-        .value.trim();
+const nameInput = document.getElementById("nameInput");
+const roomInput = document.getElementById("roomInput");
 
-    roomId =
-        document.getElementById("room")
-        .value.trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9_-]/g,"");
+const joinBtn = document.getElementById("joinBtn");
 
-    if(!myName){
-        alert("Digite seu nome.");
+const roomName = document.getElementById("roomName");
+const statusEl = document.getElementById("status");
+
+const participantsEl = document.getElementById("participants");
+const messagesEl = document.getElementById("messages");
+
+const videosEl = document.getElementById("videos");
+
+const messageInput = document.getElementById("messageInput");
+const sendBtn = document.getElementById("sendBtn");
+
+const micBtn = document.getElementById("micBtn");
+const cameraBtn = document.getElementById("cameraBtn");
+
+const screenBtn = document.getElementById("screenBtn");
+const stopScreenBtn = document.getElementById("stopScreenBtn");
+
+
+/* =========================================================
+   UTILIDADES
+========================================================= */
+
+function addMessage(name, text, system = false) {
+
+    const div = document.createElement("div");
+
+    div.className = "message";
+
+    if (system) {
+
+        div.innerHTML =
+            `<span class="system">${escapeHTML(text)}</span>`;
+
+    } else {
+
+        div.innerHTML =
+            `<span class="name">${escapeHTML(name)}</span>
+             ${escapeHTML(text)}`;
+
+    }
+
+    messagesEl.appendChild(div);
+
+    document.querySelector(".content").scrollTop =
+        document.querySelector(".content").scrollHeight;
+}
+
+
+function escapeHTML(text) {
+
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+/*
+   Gera um ID determinístico para a sala.
+
+   Assim todos sabem qual é o PeerJS ID do HOST
+   sem precisar de um servidor próprio.
+*/
+function roomHostId(roomName) {
+
+    let hash = 2166136261;
+
+    for (let i = 0; i < roomName.length; i++) {
+
+        hash ^= roomName.charCodeAt(i);
+
+        hash +=
+            (hash << 1) +
+            (hash << 4) +
+            (hash << 7) +
+            (hash << 8) +
+            (hash << 24);
+    }
+
+    hash >>>= 0;
+
+    return "dzcord-host-" + hash.toString(36);
+}
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+joinBtn.onclick = joinRoom;
+
+nameInput.addEventListener("keydown", e => {
+
+    if (e.key === "Enter")
+        roomInput.focus();
+
+});
+
+roomInput.addEventListener("keydown", e => {
+
+    if (e.key === "Enter")
+        joinRoom();
+
+});
+
+
+async function joinRoom() {
+
+    myName = nameInput.value.trim();
+    room = roomInput.value.trim();
+
+    if (!myName || !room) {
+
+        alert("Digite seu nome e o nome da sala.");
+
         return;
     }
 
-    if(!roomId){
-        alert("Digite o código da sala.");
-        return;
-    }
+    login.style.display = "none";
+    app.style.display = "flex";
+
+    roomName.textContent = room;
+
+    statusEl.textContent = "Conectando...";
+
+    hostPeerId = roomHostId(room);
 
     /*
-      Prefixo próprio para evitar colisões
-      com outros PeerJS applications.
+       Primeiro tentamos assumir o ID do HOST.
+
+       Se já existir, significa que alguém já é o host.
     */
 
-    const peerId =
-        "dzcord-" +
-        roomId +
-        "-" +
-        Math.random()
-        .toString(36)
-        .substring(2,10);
+    createPeerAsHost();
 
-    peer = new Peer(peerId,{
-        debug:0
-    });
+}
 
-    peer.on("open",id=>{
 
-        document.getElementById("login")
-            .style.display="none";
+/* =========================================================
+   CRIAÇÃO DO PEER
+========================================================= */
 
-        document.getElementById("app")
-            .style.display="flex";
+function createPeerAsHost() {
 
-        document.getElementById("myName")
-            .textContent=myName;
+    isHost = true;
 
-        document.getElementById("myAvatar")
-            .textContent=myName
-            .charAt(0)
-            .toUpperCase();
+    peer = new Peer(hostPeerId);
 
-        document.getElementById("roomDisplay")
-            .textContent=roomId;
+    peer.on("open", id => {
 
-        addMember(
-            id,
-            myName
-        );
+        myPeerId = id;
+
+        participants.set(myPeerId, myName);
+
+        updateParticipants();
+
+        statusEl.textContent = "Online";
 
         addMessage(
             "Sistema",
-            "Você entrou na sala " + roomId
+            myName + " entrou na sala."
+        );
+
+    });
+
+    peer.on("connection", handleConnection);
+
+    peer.on("call", handleIncomingCall);
+
+    peer.on("error", error => {
+
+        /*
+           O ID já está sendo usado.
+           Então essa pessoa será participante normal.
+        */
+
+        if (
+            error.type === "unavailable-id" ||
+            error.type === "id-taken"
+        ) {
+
+            try {
+                peer.destroy();
+            } catch (_) {}
+
+            createPeerAsClient();
+
+            return;
+        }
+
+        console.error("PeerJS:", error);
+
+        statusEl.textContent =
+            "Erro: " + error.type;
+    });
+
+}
+
+
+function createPeerAsClient() {
+
+    isHost = false;
+
+    peer = new Peer();
+
+    peer.on("open", id => {
+
+        myPeerId = id;
+
+        statusEl.textContent =
+            "Conectando à sala...";
+
+        connectToHost();
+
+    });
+
+    peer.on("connection", handleConnection);
+
+    peer.on("call", handleIncomingCall);
+
+    peer.on("error", error => {
+
+        console.error(error);
+
+        statusEl.textContent =
+            "Erro de conexão";
+    });
+
+}
+
+
+/* =========================================================
+   CONEXÃO COM HOST
+========================================================= */
+
+function connectToHost() {
+
+    const conn = peer.connect(
+        hostPeerId,
+        {
+            reliable: true
+        }
+    );
+
+    hostConnection = conn;
+
+    conn.on("open", () => {
+
+        conn.send({
+            type: "join",
+            id: myPeerId,
+            name: myName
+        });
+
+        statusEl.textContent = "Online";
+
+    });
+
+    conn.on("data", data => {
+
+        handleHostMessage(data);
+
+    });
+
+    conn.on("close", () => {
+
+        statusEl.textContent =
+            "Host desconectado";
+
+        addMessage(
+            "Sistema",
+            "O host saiu da sala."
+        );
+
+    });
+
+    conn.on("error", error => {
+
+        console.error(error);
+
+    });
+
+}
+
+
+/* =========================================================
+   CONEXÕES DE DADOS
+========================================================= */
+
+function handleConnection(conn) {
+
+    conn.on("open", () => {
+
+        dataConnections.set(
+            conn.peer,
+            conn
+        );
+
+    });
+
+    conn.on("data", data => {
+
+        if (isHost) {
+
+            handleHostData(conn, data);
+
+        }
+
+    });
+
+    conn.on("close", () => {
+
+        const id = conn.peer;
+
+        dataConnections.delete(id);
+
+        if (isHost && participants.has(id)) {
+
+            const name = participants.get(id);
+
+            participants.delete(id);
+
+            broadcast({
+                type: "user-left",
+                id: id,
+                name: name
+            });
+
+            updateParticipants();
+
+            addMessage(
+                "Sistema",
+                name + " saiu da sala."
+            );
+        }
+
+    });
+
+}
+
+
+/* =========================================================
+   MENSAGENS DO HOST
+========================================================= */
+
+function handleHostData(conn, data) {
+
+    if (!data || !data.type)
+        return;
+
+
+    /* NOVO USUÁRIO */
+
+    if (data.type === "join") {
+
+        participants.set(
+            data.id,
+            data.name
+        );
+
+        dataConnections.set(
+            conn.peer,
+            conn
         );
 
         /*
-          Descobre usuários através do
-          mecanismo simples de anúncio.
+           Envia a lista atual para o novo usuário.
         */
 
-        announcePresence();
-
-    });
-
-
-    peer.on("connection",conn=>{
-
-        setupConnection(conn);
-
-    });
-
-
-    peer.on("call",call=>{
-
-        handleIncomingCall(call);
-
-    });
+        conn.send({
+            type: "roster",
+            participants:
+                Array.from(participants.entries())
+                    .map(([id, name]) => ({
+                        id,
+                        name
+                    }))
+        });
 
 
-    peer.on("error",err=>{
+        /*
+           Avisa os outros.
+        */
 
-        console.error(err);
+        broadcastExcept(conn.peer, {
+            type: "user-joined",
+            id: data.id,
+            name: data.name
+        });
 
-        if(err.type==="peer-unavailable"){
-            return;
-        }
+
+        updateParticipants();
 
         addMessage(
             "Sistema",
-            "Erro de conexão: " + err.type
+            data.name + " entrou na sala."
+        );
+
+        return;
+    }
+
+
+    /* CHAT */
+
+    if (data.type === "chat") {
+
+        broadcast({
+            type: "chat",
+            name: data.name,
+            text: data.text
+        });
+
+        addMessage(
+            data.name,
+            data.text
+        );
+
+        return;
+    }
+
+}
+
+
+/* =========================================================
+   MENSAGENS RECEBIDAS DO HOST
+========================================================= */
+
+function handleHostMessage(data) {
+
+    if (!data || !data.type)
+        return;
+
+
+    if (data.type === "roster") {
+
+        participants.clear();
+
+        data.participants.forEach(user => {
+
+            participants.set(
+                user.id,
+                user.name
+            );
+
+        });
+
+        updateParticipants();
+
+        /*
+           Depois que recebemos a lista,
+           iniciamos as conexões necessárias.
+        */
+
+        setTimeout(() => {
+
+            for (const [id] of participants) {
+
+                if (id === myPeerId)
+                    continue;
+
+                /*
+                   Não criamos conexão de dados
+                   com o host novamente.
+                */
+
+                if (id === hostPeerId)
+                    continue;
+
+            }
+
+        }, 200);
+
+        return;
+    }
+
+
+    if (data.type === "user-joined") {
+
+        participants.set(
+            data.id,
+            data.name
+        );
+
+        updateParticipants();
+
+        addMessage(
+            "Sistema",
+            data.name + " entrou na sala."
+        );
+
+        return;
+    }
+
+
+    if (data.type === "user-left") {
+
+        participants.delete(data.id);
+
+        updateParticipants();
+
+        removeVideo(data.id);
+
+        return;
+    }
+
+
+    if (data.type === "chat") {
+
+        addMessage(
+            data.name,
+            data.text
+        );
+
+        return;
+    }
+
+}
+
+
+/* =========================================================
+   BROADCAST
+========================================================= */
+
+function broadcast(data) {
+
+    for (const conn of dataConnections.values()) {
+
+        if (conn.open) {
+
+            try {
+                conn.send(data);
+            } catch (_) {}
+
+        }
+    }
+}
+
+
+function broadcastExcept(exceptId, data) {
+
+    for (const [id, conn] of dataConnections) {
+
+        if (
+            id !== exceptId &&
+            conn.open
+        ) {
+
+            try {
+                conn.send(data);
+            } catch (_) {}
+
+        }
+    }
+}
+
+
+/* =========================================================
+   PARTICIPANTES
+========================================================= */
+
+function updateParticipants() {
+
+    participantsEl.innerHTML = "";
+
+    for (const [id, name] of participants) {
+
+        const div = document.createElement("div");
+
+        div.className = "participant";
+
+        div.textContent =
+            (id === myPeerId ? "🟢 " : "⚪ ") +
+            name;
+
+        participantsEl.appendChild(div);
+
+    }
+}
+
+
+/* =========================================================
+   CHAT
+========================================================= */
+
+sendBtn.onclick = sendMessage;
+
+messageInput.addEventListener("keydown", e => {
+
+    if (e.key === "Enter")
+        sendMessage();
+
+});
+
+
+function sendMessage() {
+
+    const text =
+        messageInput.value.trim();
+
+    if (!text)
+        return;
+
+    messageInput.value = "";
+
+    /*
+       Host manda para todos.
+    */
+
+    if (isHost) {
+
+        broadcast({
+            type: "chat",
+            name: myName,
+            text: text
+        });
+
+        addMessage(
+            myName,
+            text
+        );
+
+    } else if (
+        hostConnection &&
+        hostConnection.open
+    ) {
+
+        hostConnection.send({
+            type: "chat",
+            name: myName,
+            text: text
+        });
+
+    }
+
+}
+
+
+/* =========================================================
+   STREAM ATUAL
+========================================================= */
+
+/*
+   IMPORTANTE:
+
+   Nunca usamos screenStream diretamente como
+   "stream definitivo".
+
+   A função abaixo monta a stream que será enviada.
+*/
+
+function getOutgoingStream() {
+
+    const tracks = [];
+
+    /*
+       MICROFONE
+    */
+
+    if (micEnabled && micStream) {
+
+        const audioTracks =
+            micStream.getAudioTracks();
+
+        if (audioTracks.length) {
+
+            tracks.push(
+                audioTracks[0]
+            );
+
+        }
+    }
+
+    /*
+       TELA
+
+       Se estiver transmitindo,
+       o vídeo da tela tem prioridade.
+    */
+
+    if (
+        screenEnabled &&
+        screenStream
+    ) {
+
+        const videoTracks =
+            screenStream.getVideoTracks();
+
+        if (videoTracks.length) {
+
+            tracks.push(
+                videoTracks[0]
+            );
+
+        }
+
+        /*
+           Se a captura da tela tiver áudio
+           e o microfone estiver desligado,
+           podemos transmitir o áudio da tela.
+        */
+
+        if (
+            !micEnabled &&
+            screenStream.getAudioTracks().length
+        ) {
+
+            tracks.push(
+                screenStream.getAudioTracks()[0]
+            );
+
+        }
+
+    }
+
+    /*
+       CÂMERA
+
+       Só é usada quando não existe
+       transmissão de tela.
+    */
+
+    else if (
+        cameraEnabled &&
+        cameraStream
+    ) {
+
+        const videoTracks =
+            cameraStream.getVideoTracks();
+
+        if (videoTracks.length) {
+
+            tracks.push(
+                videoTracks[0]
+            );
+
+        }
+
+    }
+
+    if (!tracks.length)
+        return null;
+
+    return new MediaStream(tracks);
+}
+
+
+/* =========================================================
+   ATUALIZAÇÃO DAS CHAMADAS
+========================================================= */
+
+function syncAllCalls() {
+
+    const stream =
+        getOutgoingStream();
+
+    for (const call of mediaCalls.values()) {
+
+        syncCallTracks(
+            call,
+            stream
+        );
+
+    }
+
+}
+
+
+/*
+   Substitui os tracks da conexão sem
+   destruir a chamada.
+
+   Isso é FUNDAMENTAL para a tela não parar.
+*/
+
+function syncCallTracks(call, stream) {
+
+    if (
+        !call ||
+        !call.peerConnection
+    )
+        return;
+
+    const pc =
+        call.peerConnection;
+
+    const senders =
+        pc.getSenders();
+
+    const audioTrack =
+        stream?.getAudioTracks()[0] || null;
+
+    const videoTrack =
+        stream?.getVideoTracks()[0] || null;
+
+    let audioDone = false;
+    let videoDone = false;
+
+    for (const sender of senders) {
+
+        const kind =
+            sender.track?.kind;
+
+        if (kind === "audio") {
+
+            sender.replaceTrack(
+                audioTrack
+            ).catch(() => {});
+
+            audioDone = true;
+        }
+
+        if (kind === "video") {
+
+            sender.replaceTrack(
+                videoTrack
+            ).catch(() => {});
+
+            videoDone = true;
+        }
+    }
+
+    /*
+       Se a chamada ainda não possuía um
+       sender adequado, não destruímos a chamada.
+    */
+
+}
+
+
+/* =========================================================
+   CRIAR CHAMADAS DE MÍDIA
+========================================================= */
+
+function callParticipant(peerId) {
+
+    if (!peer)
+        return;
+
+    if (peerId === myPeerId)
+        return;
+
+    const stream =
+        getOutgoingStream();
+
+    if (!stream)
+        return;
+
+    /*
+       Já existe chamada.
+    */
+
+    if (mediaCalls.has(peerId)) {
+
+        syncCallTracks(
+            mediaCalls.get(peerId),
+            stream
+        );
+
+        return;
+    }
+
+    const call =
+        peer.call(
+            peerId,
+            stream,
+            {
+                metadata: {
+                    name: myName
+                }
+            }
+        );
+
+    if (!call)
+        return;
+
+    mediaCalls.set(
+        peerId,
+        call
+    );
+
+    setupCall(call);
+
+}
+
+
+/* =========================================================
+   CHAMADA RECEBIDA
+========================================================= */
+
+function handleIncomingCall(call) {
+
+    const callerId =
+        call.peer;
+
+    /*
+       Respondemos com a stream atual.
+
+       Se não temos câmera/microfone,
+       ainda respondemos à chamada.
+    */
+
+    const stream =
+        getOutgoingStream();
+
+    try {
+
+        if (stream) {
+
+            call.answer(stream);
+
+        } else {
+
+            call.answer();
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao responder chamada:",
+            error
+        );
+
+        return;
+    }
+
+    mediaCalls.set(
+        callerId,
+        call
+    );
+
+    setupCall(call);
+
+}
+
+
+/* =========================================================
+   CONFIGURAÇÃO DA CHAMADA
+========================================================= */
+
+function setupCall(call) {
+
+    call.on("stream", remoteStream => {
+
+        showRemoteStream(
+            call.peer,
+            remoteStream
+        );
+
+    });
+
+    call.on("close", () => {
+
+        if (
+            mediaCalls.get(call.peer) === call
+        ) {
+
+            mediaCalls.delete(
+                call.peer
+            );
+
+        }
+
+    });
+
+    call.on("error", error => {
+
+        console.error(
+            "Erro na chamada:",
+            error
         );
 
     });
@@ -679,266 +1385,324 @@ function joinRoom(){
 }
 
 
-/* =========================================
-   PRESENÇA
-========================================= */
+/* =========================================================
+   VÍDEO REMOTO
+========================================================= */
 
-const presenceKey =
-    "dzcord-presence-";
+function showRemoteStream(
+    peerId,
+    stream
+) {
 
-function announcePresence(){
+    let box =
+        document.getElementById(
+            "video-" + peerId
+        );
+
+    if (!box) {
+
+        box = document.createElement("div");
+
+        box.className =
+            "video-box";
+
+        box.id =
+            "video-" + peerId;
+
+        const video =
+            document.createElement("video");
+
+        video.autoplay = true;
+        video.playsInline = true;
+
+        video.id =
+            "stream-" + peerId;
+
+        box.appendChild(video);
+
+        const label =
+            document.createElement("div");
+
+        label.className =
+            "video-name";
+
+        label.id =
+            "label-" + peerId;
+
+        label.textContent =
+            participants.get(peerId) ||
+            "Usuário";
+
+        box.appendChild(label);
+
+        videosEl.appendChild(box);
+
+    }
+
+    const video =
+        document.getElementById(
+            "stream-" + peerId
+        );
+
+    if (video.srcObject !== stream) {
+
+        video.srcObject =
+            stream;
+
+    }
+
+    video.play().catch(() => {});
+
+    updateScreenBadge(
+        peerId,
+        stream
+    );
+}
+
+
+/*
+   Mostra "TELA" quando a stream
+   contém vídeo de compartilhamento.
+*/
+
+function updateScreenBadge(
+    peerId,
+    stream
+) {
+
+    const box =
+        document.getElementById(
+            "video-" + peerId
+        );
+
+    if (!box)
+        return;
+
+    let badge =
+        box.querySelector(".screen-badge");
 
     /*
-      localStorage não é compartilhado entre
-      computadores, então ele serve apenas
-      como mecanismo auxiliar na mesma origem.
-
-      A conexão WebRTC propriamente dita
-      acontece pelo PeerJS.
+       Se a stream tem vídeo, marcamos
+       como transmissão.
     */
 
-    addMessage(
-        "Sistema",
-        "Compartilhe o mesmo link e código da sala com seus amigos."
-    );
+    if (stream.getVideoTracks().length) {
+
+        if (!badge) {
+
+            badge =
+                document.createElement("div");
+
+            badge.className =
+                "screen-badge";
+
+            badge.textContent =
+                "🖥️ TRANSMITINDO";
+
+            box.appendChild(badge);
+        }
+
+    }
 
 }
 
 
-/* =========================================
-   CONEXÃO
-========================================= */
+function removeVideo(peerId) {
 
-function setupConnection(conn){
+    const box =
+        document.getElementById(
+            "video-" + peerId
+        );
 
-    connections.set(
-        conn.peer,
-        conn
-    );
+    if (box)
+        box.remove();
 
-    conn.on("data",data=>{
+}
 
-        if(!data) return;
 
-        if(data.type==="chat"){
+function updateAllLabels() {
 
-            addMessage(
-                data.name,
-                data.message
+    for (const [id, name] of participants) {
+
+        const label =
+            document.getElementById(
+                "label-" + id
             );
+
+        if (label)
+            label.textContent = name;
+
+    }
+}
+
+
+/* =========================================================
+   MICROFONE
+========================================================= */
+
+micBtn.onclick = async () => {
+
+    try {
+
+        if (!micStream) {
+
+            micStream =
+                await navigator.mediaDevices
+                    .getUserMedia({
+                        audio: true
+                    });
 
         }
 
-        if(data.type==="hello"){
+        micEnabled =
+            !micEnabled;
 
-            addMember(
-                conn.peer,
-                data.name
-            );
+        micStream
+            .getAudioTracks()
+            .forEach(track => {
 
-            /*
-              Responde quem somos.
-            */
+                track.enabled =
+                    micEnabled;
 
-            conn.send({
-                type:"hello",
-                name:myName
             });
 
-        }
+        micBtn.classList.toggle(
+            "active",
+            micEnabled
+        );
 
-    });
+        syncAllCalls();
 
-    conn.on("open",()=>{
+        if (micEnabled)
+            startCallsToEveryone();
 
-        conn.send({
-            type:"hello",
-            name:myName
-        });
+    } catch (error) {
 
-    });
-
-    conn.on("close",()=>{
-
-        connections.delete(conn.peer);
-
-        removeMember(conn.peer);
-
-    });
-
-}
-
-
-/* =========================================
-   MICROFONE
-========================================= */
-
-async function toggleMic(){
-
-    try{
-
-        if(!localStream){
-
-            localStream =
-                await navigator.mediaDevices
-                .getUserMedia({
-                    audio:true,
-                    video:true
-                });
-
-            createLocalVideo();
-
-        }
-
-        const track =
-            localStream
-            .getAudioTracks()[0];
-
-        if(!track){
-            alert("Microfone não encontrado.");
-            return;
-        }
-
-        micOn=!micOn;
-
-        track.enabled=micOn;
-
-        document.getElementById("mic")
-            .classList.toggle(
-                "active",
-                micOn
-            );
-
-        document.getElementById("mic")
-            .textContent =
-            micOn
-            ? "🎤 Microfone"
-            : "🔇 Microfone";
-
-        updateCalls();
-
-    }catch(e){
+        console.error(error);
 
         alert(
             "Não foi possível acessar o microfone."
         );
-
-        console.error(e);
-
     }
 
-}
+};
 
 
-/* =========================================
+/* =========================================================
    CÂMERA
-========================================= */
+========================================================= */
 
-async function toggleCamera(){
+cameraBtn.onclick = async () => {
 
-    try{
+    try {
 
-        if(!localStream){
+        if (!cameraStream) {
 
-            localStream =
+            cameraStream =
                 await navigator.mediaDevices
-                .getUserMedia({
-                    audio:true,
-                    video:true
-                });
-
-            createLocalVideo();
+                    .getUserMedia({
+                        video: true
+                    });
 
         }
 
-        const track =
-            localStream
-            .getVideoTracks()[0];
+        cameraEnabled =
+            !cameraEnabled;
 
-        if(!track){
-            alert("Câmera não encontrada.");
-            return;
-        }
+        cameraStream
+            .getVideoTracks()
+            .forEach(track => {
 
-        cameraOn=!cameraOn;
+                track.enabled =
+                    cameraEnabled;
 
-        track.enabled=cameraOn;
+            });
 
-        document.getElementById("camera")
-            .classList.toggle(
-                "active",
-                cameraOn
-            );
+        cameraBtn.classList.toggle(
+            "active",
+            cameraEnabled
+        );
 
-        document.getElementById("camera")
-            .textContent =
-            cameraOn
-            ? "📹 Câmera"
-            : "📷 Câmera";
+        syncAllCalls();
 
-        updateCalls();
+        if (cameraEnabled)
+            startCallsToEveryone();
 
-    }catch(e){
+    } catch (error) {
+
+        console.error(error);
 
         alert(
             "Não foi possível acessar a câmera."
         );
-
     }
 
-}
+};
 
 
-/* =========================================
+/* =========================================================
    TRANSMISSÃO DE TELA
-========================================= */
+========================================================= */
 
-async function toggleScreen(){
+screenBtn.onclick =
+    startScreenShare;
 
-    if(screenOn){
 
-        stopScreen();
+async function startScreenShare() {
 
+    /*
+       Evita criar duas capturas ao mesmo tempo.
+    */
+
+    if (screenEnabled)
         return;
-    }
 
-    try{
-
-        screenStream =
-            await navigator.mediaDevices
-            .getDisplayMedia({
-                video:{
-                    cursor:"always"
-                },
-                audio:true
-            });
-
-        screenOn=true;
-
-        document.getElementById("screen")
-            .classList.add("active");
-
-        document.getElementById("screen")
-            .textContent="⏹️ Parar transmissão";
+    try {
 
         /*
-          A transmissão de tela passa a ser
-          enviada pelas conexões WebRTC.
+           ESTE É O PONTO MAIS IMPORTANTE.
+
+           getDisplayMedia abre o seletor nativo
+           do Chrome.
+
+           O usuário pode escolher:
+
+           - Tela inteira
+           - Janela
+           - Aba do Chrome
         */
 
-        replaceOutgoingVideoTrack(
-            screenStream
-            .getVideoTracks()[0]
-        );
+        const stream =
+            await navigator.mediaDevices
+                .getDisplayMedia({
 
-        createOrUpdateScreenVideo();
+                    video: {
+                        cursor: "always"
+                    },
 
-        screenStream
-            .getVideoTracks()[0]
-            .addEventListener(
-                "ended",
-                stopScreen
-            );
+                    audio: true
+
+                });
+
+
+        /*
+           A captura só é considerada ativa
+           DEPOIS que o Chrome entregar a stream.
+        */
+
+        screenStream =
+            stream;
+
+        screenEnabled =
+            true;
+
+
+        screenBtn.style.display =
+            "none";
+
+        stopScreenBtn.style.display =
+            "block";
+
 
         addMessage(
             "Sistema",
@@ -946,67 +1710,132 @@ async function toggleScreen(){
             " começou a transmitir a tela."
         );
 
-    }catch(e){
 
-        console.log(e);
+        /*
+           Quando o usuário clica em
+           "Parar compartilhamento" no
+           próprio Chrome, o track termina.
+
+           Aqui detectamos isso.
+        */
+
+        const videoTrack =
+            screenStream.getVideoTracks()[0];
+
+        if (videoTrack) {
+
+            videoTrack.onended = () => {
+
+                stopScreenShare();
+
+            };
+
+        }
+
+
+        /*
+           Primeiro tenta atualizar chamadas
+           existentes.
+        */
+
+        syncAllCalls();
+
+
+        /*
+           Se ainda não existe chamada,
+           cria uma para cada participante.
+        */
+
+        startCallsToEveryone();
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao iniciar transmissão:",
+            error
+        );
+
+        /*
+           Cancelar o seletor do Chrome
+           NÃO deve ser tratado como uma
+           transmissão iniciada.
+        */
+
+        screenStream = null;
+        screenEnabled = false;
+
+        screenBtn.style.display =
+            "block";
+
+        stopScreenBtn.style.display =
+            "none";
 
     }
 
 }
 
 
-/* =========================================
-   PARAR TELA
-========================================= */
+/* =========================================================
+   PARAR TRANSMISSÃO
+========================================================= */
 
-function stopScreen(){
+stopScreenBtn.onclick =
+    stopScreenShare;
 
-    if(!screenOn) return;
 
-    screenOn=false;
+function stopScreenShare() {
 
-    if(screenStream){
+    if (!screenStream)
+        return;
 
-        screenStream
-            .getTracks()
-            .forEach(t=>t.stop());
 
-        screenStream=null;
+    /*
+       Desliga todos os tracks da captura.
+    */
 
-    }
+    screenStream
+        .getTracks()
+        .forEach(track => {
 
-    document.getElementById("screen")
-        .classList.remove("active");
+            track.onended = null;
 
-    document.getElementById("screen")
-        .textContent="🖥️ Transmitir";
+            if (
+                track.readyState !== "ended"
+            ) {
 
-    const video =
-        document.getElementById(
-            "localVideo"
-        );
+                track.stop();
 
-    if(video && localStream){
+            }
 
-        video.srcObject=localStream;
+        });
 
-    }
 
-    if(localStream){
+    screenStream = null;
 
-        const track =
-            localStream
-            .getVideoTracks()[0];
+    screenEnabled = false;
 
-        if(track){
 
-            replaceOutgoingVideoTrack(
-                track
-            );
+    screenBtn.style.display =
+        "block";
 
-        }
+    stopScreenBtn.style.display =
+        "none";
 
-    }
+
+    /*
+       IMPORTANTE:
+
+       Não fechamos as chamadas WebRTC.
+
+       Apenas substituímos o vídeo da tela
+       pela câmera, ou removemos o vídeo.
+
+       Assim a chamada continua viva.
+    */
+
+    syncAllCalls();
+
 
     addMessage(
         "Sistema",
@@ -1017,588 +1846,119 @@ function stopScreen(){
 }
 
 
-/* =========================================
-   VIDEO LOCAL
-========================================= */
+/* =========================================================
+   CHAMADAS PARA TODOS
+========================================================= */
 
-function createLocalVideo(){
+function startCallsToEveryone() {
 
-    let card =
-        document.getElementById(
-            "localCard"
-        );
+    for (const [id] of participants) {
 
-    if(card) return;
+        if (id === myPeerId)
+            continue;
 
-    removeEmpty();
+        /*
+           Se sou cliente, o host também pode
+           ser chamado para que ele receba nossa mídia.
+        */
 
-    card =
-        document.createElement("div");
+        callParticipant(id);
 
-    card.className="video-card";
-    card.id="localCard";
-
-    card.innerHTML=`
-        <video id="localVideo"
-               autoplay
-               muted
-               playsinline></video>
-
-        <div class="video-label">
-            ${escapeHTML(myName)}
-        </div>
-    `;
-
-    document.getElementById("videos")
-        .appendChild(card);
-
-    document.getElementById("localVideo")
-        .srcObject=localStream;
+    }
 
 }
 
 
-/* =========================================
-   VIDEO DA TELA
-========================================= */
+/* =========================================================
+   LIMPEZA
+========================================================= */
 
-function createOrUpdateScreenVideo(){
+window.addEventListener(
+    "beforeunload",
+    () => {
 
-    let card =
-        document.getElementById(
-            "screenCard"
-        );
+        try {
 
-    if(!card){
+            if (screenStream) {
 
-        removeEmpty();
+                screenStream
+                    .getTracks()
+                    .forEach(track =>
+                        track.stop()
+                    );
 
-        card =
-            document.createElement("div");
-
-        card.className="video-card";
-        card.id="screenCard";
-
-        card.innerHTML=`
-            <video id="screenVideo"
-                   autoplay
-                   muted
-                   playsinline></video>
-
-            <div class="video-label">
-                🖥️ ${escapeHTML(myName)}
-            </div>
-        `;
-
-        document.getElementById("videos")
-            .appendChild(card);
-
-    }
-
-    document.getElementById("screenVideo")
-        .srcObject=screenStream;
-
-}
-
-
-/* =========================================
-   CHAMADAS WEBRTC
-========================================= */
-
-function callPeer(peerId){
-
-    if(!peer) return;
-
-    if(calls.has(peerId)){
-        return;
-    }
-
-    const stream =
-        screenOn
-        ? screenStream
-        : localStream;
-
-    if(!stream){
-        return;
-    }
-
-    const call =
-        peer.call(
-            peerId,
-            stream,
-            {
-                metadata:{
-                    name:myName,
-                    type:screenOn
-                    ? "screen"
-                    : "camera"
-                }
             }
-        );
 
-    handleCall(
-        call,
-        peerId
-    );
+            if (micStream) {
 
-}
+                micStream
+                    .getTracks()
+                    .forEach(track =>
+                        track.stop()
+                    );
 
+            }
 
-function handleIncomingCall(call){
+            if (cameraStream) {
 
-    const name =
-        call.metadata &&
-        call.metadata.name
-        ? call.metadata.name
-        : "Usuário";
+                cameraStream
+                    .getTracks()
+                    .forEach(track =>
+                        track.stop()
+                    );
 
-    const stream =
-        screenOn
-        ? screenStream
-        : localStream;
+            }
 
-    /*
-      Se ainda não temos mídia local,
-      solicitamos áudio/câmera.
-    */
+            for (
+                const call
+                of mediaCalls.values()
+            ) {
 
-    if(!stream){
+                try {
+                    call.close();
+                } catch (_) {}
 
-        navigator.mediaDevices
-        .getUserMedia({
-            audio:true,
-            video:true
-        })
-        .then(s=>{
+            }
 
-            localStream=s;
+            if (peer) {
 
-            createLocalVideo();
+                try {
+                    peer.destroy();
+                } catch (_) {}
 
-            call.answer(s);
+            }
 
-            handleCall(
-                call,
-                call.peer
-            );
-
-        })
-        .catch(()=>{
-
-            call.answer();
-
-            handleCall(
-                call,
-                call.peer
-            );
-
-        });
-
-    }else{
-
-        call.answer(stream);
-
-        handleCall(
-            call,
-            call.peer
-        );
+        } catch (_) {}
 
     }
-
-    addMember(
-        call.peer,
-        name
-    );
-
-}
+);
 
 
-function handleCall(call,peerId){
+/* =========================================================
+   SEGURANÇA CONTRA PÁGINA SENDO FECHADA
+========================================================= */
 
-    calls.set(
-        peerId,
-        call
-    );
-
-    call.on("stream",remoteStream=>{
-
-        createRemoteVideo(
-            peerId,
-            remoteStream,
-            call.metadata
-        );
-
-    });
-
-    call.on("close",()=>{
-
-        calls.delete(peerId);
-
-        removeRemoteVideo(peerId);
-
-    });
-
-    call.on("error",err=>{
+window.addEventListener(
+    "unhandledrejection",
+    event => {
 
         console.error(
-            "WebRTC:",
-            err
+            "Promise:",
+            event.reason
         );
 
-    });
+        /*
+           Impede que um erro de uma Promise
+           derrube a lógica da aplicação.
+        */
 
-}
-
-
-/* =========================================
-   ENVIAR NOVA MÍDIA
-========================================= */
-
-function updateCalls(){
-
-    /*
-      Para uma implementação simples,
-      as chamadas existentes continuam ativas.
-    */
-
-}
-
-
-/* =========================================
-   TROCAR VIDEO DA CHAMADA
-========================================= */
-
-function replaceOutgoingVideoTrack(track){
-
-    calls.forEach(call=>{
-
-        const sender =
-            call.peerConnection
-            ?.getSenders()
-            ?.find(
-                s=>s.track &&
-                s.track.kind==="video"
-            );
-
-        if(sender){
-
-            sender.replaceTrack(track);
-
-        }
-
-    });
-
-}
-
-
-/* =========================================
-   VIDEO REMOTO
-========================================= */
-
-function createRemoteVideo(
-    peerId,
-    stream,
-    metadata
-){
-
-    removeEmpty();
-
-    let card =
-        document.getElementById(
-            "remote-"+peerId
-        );
-
-    if(!card){
-
-        card =
-            document.createElement("div");
-
-        card.className="video-card";
-
-        card.id =
-            "remote-"+peerId;
-
-        const name =
-            metadata &&
-            metadata.name
-            ? metadata.name
-            : "Usuário";
-
-        card.innerHTML=`
-            <video autoplay playsinline></video>
-            <div class="video-label">
-                🖥️ ${escapeHTML(name)}
-            </div>
-        `;
-
-        document.getElementById("videos")
-            .appendChild(card);
+        event.preventDefault();
 
     }
-
-    const video =
-        card.querySelector("video");
-
-    video.srcObject=stream;
-
-}
-
-
-/* =========================================
-   MEMBROS
-========================================= */
-
-function addMember(id,name){
-
-    if(document.getElementById("member-"+id)){
-        return;
-    }
-
-    const div =
-        document.createElement("div");
-
-    div.className="member";
-
-    div.id="member-"+id;
-
-    div.innerHTML=`
-        <div class="member-avatar">
-            ${escapeHTML(
-                name.charAt(0)
-                .toUpperCase()
-            )}
-        </div>
-
-        <div>
-            <div>
-                ${escapeHTML(name)}
-            </div>
-
-            <div class="online">
-                ● Online
-            </div>
-        </div>
-    `;
-
-    document.getElementById("members")
-        .appendChild(div);
-
-}
-
-
-/* =========================================
-   REMOVER MEMBRO
-========================================= */
-
-function removeMember(id){
-
-    const element =
-        document.getElementById(
-            "member-"+id
-        );
-
-    if(element){
-        element.remove();
-    }
-
-    removeRemoteVideo(id);
-
-}
-
-
-/* =========================================
-   REMOVER VIDEO
-========================================= */
-
-function removeRemoteVideo(id){
-
-    const card =
-        document.getElementById(
-            "remote-"+id
-        );
-
-    if(card){
-        card.remove();
-    }
-
-    checkEmpty();
-
-}
-
-
-/* =========================================
-   CHAT
-========================================= */
-
-function sendMessage(){
-
-    const input =
-        document.getElementById(
-            "message"
-        );
-
-    const text =
-        input.value.trim();
-
-    if(!text) return;
-
-    addMessage(
-        myName,
-        text
-    );
-
-    connections.forEach(conn=>{
-
-        if(conn.open){
-
-            conn.send({
-                type:"chat",
-                name:myName,
-                message:text
-            });
-
-        }
-
-    });
-
-    input.value="";
-
-}
-
-
-function messageKey(e){
-
-    if(e.key==="Enter"){
-        sendMessage();
-    }
-
-}
-
-
-function addMessage(name,text){
-
-    const box =
-        document.getElementById(
-            "messages"
-        );
-
-    const div =
-        document.createElement("div");
-
-    div.className="message";
-
-    div.innerHTML=
-        "<strong>"+
-        escapeHTML(name)+
-        "</strong>"+
-        "<span>"+
-        escapeHTML(text)+
-        "</span>";
-
-    box.appendChild(div);
-
-    box.scrollTop=box.scrollHeight;
-
-}
-
-
-/* =========================================
-   UI
-========================================= */
-
-function removeEmpty(){
-
-    const empty =
-        document.getElementById("empty");
-
-    if(empty){
-        empty.remove();
-    }
-
-}
-
-
-function checkEmpty(){
-
-    const videos =
-        document.getElementById("videos");
-
-    if(
-        videos.children.length===0
-    ){
-
-        const empty =
-            document.createElement("div");
-
-        empty.className="empty";
-        empty.id="empty";
-
-        empty.innerHTML=`
-            <div>
-                <div style="font-size:40px">🖥️</div>
-                <br>
-                Ninguém está transmitindo.
-            </div>
-        `;
-
-        videos.appendChild(empty);
-
-    }
-
-}
-
-
-/* =========================================
-   SAIR
-========================================= */
-
-function leaveRoom(){
-
-    stopScreen();
-
-    if(localStream){
-
-        localStream
-            .getTracks()
-            .forEach(
-                t=>t.stop()
-            );
-
-    }
-
-    calls.forEach(call=>{
-        call.close();
-    });
-
-    connections.forEach(conn=>{
-        conn.close();
-    });
-
-    if(peer){
-        peer.destroy();
-    }
-
-    location.reload();
-
-}
-
-
-/* =========================================
-   ESCAPE HTML
-========================================= */
-
-function escapeHTML(text){
-
-    const div =
-        document.createElement("div");
-
-    div.textContent=text;
-
-    return div.innerHTML;
-
-}
+);
 
 </script>
 
 </body>
 </html>
+```
