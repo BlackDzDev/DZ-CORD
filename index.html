@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -446,6 +446,29 @@ input {
 
 const $ = id => document.getElementById(id);
 
+
+const PEER_CONFIG = {
+    debug: 2,
+
+    host: "0.peerjs.com",
+    port: 443,
+    path: "/",
+    secure: true,
+
+    config: {
+        iceServers: [
+            {
+                urls: "stun:stun.l.google.com:19302"
+            },
+            {
+                urls: "stun:stun1.l.google.com:19302"
+            },
+            {
+                urls: "stun:stun2.l.google.com:19302"
+            }
+        ]
+    }
+};
 
 /* =====================================================
    ESTADO
@@ -1822,125 +1845,128 @@ function createHost(hostPeer) {
    ENTRAR COMO CLIENTE
 ===================================================== */
 
+
 function becomeClient() {
 
-    isHost =
-        false;
+    isHost = false;
 
+    hostId = getHostId(room);
 
-    hostId =
-        getHostId(room);
-
-
-    console.log(
-        "ENTRANDO COMO CLIENTE"
-    );
-
-
-    console.log(
-        "HOST:",
-        hostId
-    );
-
+    console.log("================================");
+    console.log("ENTRANDO COMO CLIENTE");
+    console.log("HOST:", hostId);
+    console.log("================================");
 
     /*
-       Cliente recebe ID aleatório.
+       Cria um Peer com ID aleatório.
     */
 
-    peer =
-        new Peer();
+    peer = new Peer(undefined, PEER_CONFIG);
 
 
-    peer.on(
-        "open",
-        id => {
+    peer.on("open", id => {
 
-            myPeerId =
-                id;
+        myPeerId = id;
 
+        console.log("MEU ID:", id);
 
-            console.log(
-                "MEU ID:",
-                id
-            );
+        /*
+           Abre a aplicação imediatamente.
+        */
 
+        $("login").style.display = "none";
+        $("app").style.display = "flex";
 
-            /*
-               Abre aplicação.
-            */
+        $("roomInfo").textContent =
+            "Código: " + room;
 
-            $("login").style.display =
-                "none";
+        setStatus(
+            "🔎 Procurando a sala..."
+        );
 
-            $("app").style.display =
-                "flex";
+        /*
+           Começa tentativa de conexão.
+        */
 
+        connectToHost();
 
-            $("roomInfo").textContent =
-                "Código: " + room;
-
-
-            setStatus(
-                "Conectando à sala..."
-            );
+    });
 
 
-            /*
-               Conecta ao host.
-            */
-
-            connectToHost();
-        }
-    );
+    peer.on("call", handleIncomingCall);
 
 
-    peer.on(
-        "call",
-        handleIncomingCall
-    );
+    peer.on("connection", handleDataConnection);
 
 
-    peer.on(
-        "connection",
-        handleDataConnection
-    );
+    peer.on("error", error => {
 
+        console.error(
+            "ERRO CLIENTE:",
+            error
+        );
 
-    peer.on(
-        "error",
-        error => {
+        /*
+           Alguns erros são temporários.
+           Não derruba a aplicação.
+        */
 
-            console.error(
-                "Erro CLIENTE:",
-                error
-            );
-
+        if (
+            error.type === "network" ||
+            error.type === "server-error" ||
+            error.type === "socket-error" ||
+            error.type === "socket-closed"
+        ) {
 
             setStatus(
-                "Erro: " +
-                (
-                    error.type ||
-                    error.message
-                )
-            );
-        }
-    );
-
-
-    peer.on(
-        "disconnected",
-        () => {
-
-            setStatus(
-                "Desconectado..."
+                "🌐 Reconectando..."
             );
 
+            scheduleHostRetry();
 
-            try {
-                peer.reconnect();
-            } catch {}
+            return;
         }
-    );
+
+
+        setStatus(
+            "Erro: " +
+            (
+                error.type ||
+                error.message ||
+                "desconhecido"
+            )
+        );
+
+    });
+
+
+    peer.on("disconnected", () => {
+
+        console.log(
+            "Peer desconectado do servidor."
+        );
+
+        setStatus(
+            "🌐 Reconectando ao servidor..."
+        );
+
+        try {
+            peer.reconnect();
+        } catch (error) {
+            console.error(error);
+        }
+
+    });
+
+
+    peer.on("close", () => {
+
+        console.log(
+            "Peer fechado."
+        );
+
+    });
+
 }
 
 
@@ -1948,83 +1974,343 @@ function becomeClient() {
    CONECTAR AO HOST
 ===================================================== */
 
+let hostRetryTimer = null;
+let hostRetryCount = 0;
+let hostConnected = false;
+
+
 function connectToHost() {
 
+    if (!peer) {
+        return;
+    }
+
+    if (peer.destroyed) {
+        return;
+    }
+
+    if (hostConnected) {
+        return;
+    }
+
+
+    hostRetryCount++;
+
     console.log(
-        "CONECTANDO AO HOST:",
+        "================================"
+    );
+
+    console.log(
+        "TENTATIVA DE CONEXÃO:",
+        hostRetryCount
+    );
+
+    console.log(
+        "HOST:",
         hostId
     );
 
+    console.log(
+        "MEU ID:",
+        myPeerId
+    );
 
-    hostConnection =
-        peer.connect(
+    console.log(
+        "================================"
+    );
+
+
+    setStatus(
+        "🔎 Conectando à sala... (" +
+        hostRetryCount +
+        ")"
+    );
+
+
+    /*
+       Fecha conexão antiga
+       se existir.
+    */
+
+    if (hostConnection) {
+
+        try {
+            hostConnection.close();
+        } catch {}
+
+        hostConnection = null;
+    }
+
+
+    let connection;
+
+
+    try {
+
+        connection = peer.connect(
             hostId,
             {
-                reliable: true
+                reliable: true,
+                serialization: "json"
             }
         );
 
+    } catch (error) {
 
-    hostConnection.on(
-        "open",
-        () => {
+        console.error(
+            "ERRO AO CRIAR CONEXÃO:",
+            error
+        );
 
-            console.log(
-                "CONECTADO AO HOST"
+        scheduleHostRetry();
+
+        return;
+    }
+
+
+    hostConnection = connection;
+
+
+    /*
+       Conexão abriu.
+    */
+
+    connection.on("open", () => {
+
+        /*
+           Ignora conexão antiga.
+        */
+
+        if (
+            hostConnection !== connection
+        ) {
+            return;
+        }
+
+
+        console.log(
+            "================================"
+        );
+
+        console.log(
+            "✅ CONECTADO AO HOST!"
+        );
+
+        console.log(
+            "================================"
+        );
+
+
+        hostConnected = true;
+        hostRetryCount = 0;
+
+
+        setStatus(
+            "🟢 Conectado à sala"
+        );
+
+
+        /*
+           Cancela retry.
+        */
+
+        if (hostRetryTimer) {
+
+            clearTimeout(
+                hostRetryTimer
             );
 
-
-            setStatus(
-                "Conectado"
-            );
+            hostRetryTimer = null;
+        }
 
 
-            /*
-               Envia nosso nome.
-            */
+        /*
+           Envia nosso nome.
+        */
 
-            hostConnection.send({
+        try {
+
+            connection.send({
                 type: "join",
                 name: myName
             });
-        }
-    );
 
-
-    hostConnection.on(
-        "data",
-        data => {
-
-            handleDataMessage(
-                hostConnection,
-                data
-            );
-        }
-    );
-
-
-    hostConnection.on(
-        "close",
-        () => {
-
-            setStatus(
-                "Conexão com a sala perdida."
-            );
-        }
-    );
-
-
-    hostConnection.on(
-        "error",
-        error => {
+        } catch (error) {
 
             console.error(
-                "Erro HOST CONNECTION:",
+                "Erro enviando JOIN:",
                 error
             );
+
+            hostConnected = false;
+
+            scheduleHostRetry();
         }
-    );
+
+    });
+
+
+    /*
+       Recebe dados do host.
+    */
+
+    connection.on("data", data => {
+
+        if (
+            hostConnection !== connection
+        ) {
+            return;
+        }
+
+
+        handleDataMessage(
+            connection,
+            data
+        );
+
+    });
+
+
+    /*
+       Erro.
+    */
+
+    connection.on("error", error => {
+
+        console.error(
+            "ERRO CONEXÃO COM HOST:",
+            error
+        );
+
+
+        if (
+            hostConnection === connection
+        ) {
+
+            hostConnected = false;
+        }
+
+
+        scheduleHostRetry();
+
+    });
+
+
+    /*
+       Host fechou.
+    */
+
+    connection.on("close", () => {
+
+        console.log(
+            "Conexão com host fechada."
+        );
+
+
+        if (
+            hostConnection === connection
+        ) {
+
+            hostConnected = false;
+        }
+
+
+        /*
+           Tenta novamente automaticamente.
+        */
+
+        scheduleHostRetry();
+
+    });
+
+
+    /*
+       Se o PeerJS simplesmente
+       ficar pendurado sem abrir,
+       força uma nova tentativa.
+    */
+
+    setTimeout(() => {
+
+        if (
+            hostConnection === connection &&
+            !connection.open &&
+            !hostConnected
+        ) {
+
+            console.log(
+                "Timeout aguardando host."
+            );
+
+
+            try {
+                connection.close();
+            } catch {}
+
+
+            hostConnection = null;
+
+
+            scheduleHostRetry();
+
+        }
+
+    }, 5000);
+
 }
+
+
+/*
+   Agenda nova tentativa.
+*/
+
+function scheduleHostRetry() {
+
+    if (hostConnected) {
+        return;
+    }
+
+
+    if (hostRetryTimer) {
+        return;
+    }
+
+
+    /*
+       Limita o intervalo
+       para não bombardear o PeerJS.
+    */
+
+    const delay =
+        Math.min(
+            1500 + (hostRetryCount * 500),
+            5000
+        );
+
+
+    console.log(
+        "Nova tentativa em",
+        delay,
+        "ms"
+    );
+
+
+    setStatus(
+        "🔄 Procurando o host..."
+    );
+
+
+    hostRetryTimer =
+        setTimeout(() => {
+
+            hostRetryTimer = null;
+
+            connectToHost();
+
+        }, delay);
+
+}
+
 
 
 /* =====================================================
@@ -2800,4 +3086,3 @@ console.log(
 
 </body>
 </html>
-```
